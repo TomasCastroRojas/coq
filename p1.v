@@ -4,21 +4,30 @@ Section P1.
 Variables A B C:Prop.
 
 (* Ej 1.1 *)
-Theorem e11: A->A.
+(* 1. *)
+Theorem I: A->A.
 Proof.
-...
+  intro H.
+  assumption.
 Qed.
 
-(* Ej 1.2 *)
-Theorem e12: A->B->A.
+(* 2. *)
+Theorem K: A->B->A.
 Proof.
-...
+  intros.
+  assumption.
 Qed.
 
-(* Ej 1.3 *)
-Theorem e13: (A->(B->C))->(A->B)->(A->C).
+(* 3. *)
+Theorem S: (A->(B->C))->(A->B)->(A->C).
 Proof.
-...
+  intro H1.
+  intro H2.
+  intro H3.
+  apply H1.
+  assumption.
+  apply H2.
+  assumption.
 Qed.
 
 (*Ej 2.1 *)
