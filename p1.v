@@ -85,79 +85,145 @@ Qed.
 (* Ej 4.1 *)
 Theorem e41: A -> ~~A.
 Proof.
-...
+  intro a.
+  unfold not.
+  intro f.
+  apply f.
+  exact a.
 Qed.
 
 (* Ej 4.2 *)
 Theorem e42: A -> B -> (A /\ B).
 Proof.
-...
+  intros a b.
+  split.
+  exact a.
+  exact b.
 Qed.
 
 (* Ej 4.3 *)
 Theorem e43: (A->B->C) -> (A/\B->C).
 Proof.
-...
+  intro f.
+  intro ab.
+  elim ab.
+  exact f.
 Qed.
 
 (* Ej 4.4 *)
 Theorem e44: A->(A\/B).
 Proof.
-...
+  intro a.
+  left.
+  exact a.
 Qed.
 
 (* Ej 4.5 *)
 Theorem e45: B->(A\/B).
 Proof.
-...
+  intro b.
+  right.
+  exact b.
 Qed.
 
 (* Ej 4.6 *)
 Theorem e46: (A \/ B) -> (B \/ A).
 Proof.
-...
+  intro ab.
+  elim ab.
+  intro a.
+  right.
+  assumption.
+  intro b.
+  left.
+  assumption.
 Qed.
 
 (* Ej 4.7 *)
 Theorem e47: (A->C)->(B->C)->A\/B->C.
 Proof.
-...
+  intro f.
+  intro g.
+  intro ab.
+  elim ab.
+  exact f.
+  exact g.
 Qed.
 
 (* Ej 4.8 *)
 Theorem e48: False->A.
 Proof.
-...
+  intro false.
+  elim false.
 Qed.
 
 (* Ej 5.1 *)
 Theorem e51: (A->B)-> ~B-> ~A.
 Proof.
-...
+  intro f.
+  unfold not.
+  intro g.
+  intro a.
+  absurd B.
+  assumption.
+  apply f.
+  assumption.
 Qed.
 
 (* Ej 5.2 *)
 Theorem e52: ~(A/\~A).
 Proof.
-...
+  intro H.
+  apply H.
+  elim H.
+  intro a.
+  intro aa.
+  assumption.
 Qed.
 
 (* Ej 5.3 *)
 Theorem e53: (A->B)-> ~(A/\~B).
 Proof.
-...
+  intro f.
+  intro g.
+  apply g.
+  apply f.
+  elim g.
+  intro a.
+  intro nb.
+  assumption.
 Qed.
 
 (* Ej 5.4 *)
 Theorem e54: (A/\B)->~(A->~B).
 Proof.
-...
+  intro ab.
+  intro f.
+  elim f.
+  elim ab.
+  exact K.
+  elim ab.
+  intro a.
+  intro b.
+  assumption.
 Qed.
 
 (* Ej 5.5 *)
 Theorem e55: (~A /\ ~~A) -> False.
 Proof.
-...
+  intro H.
+  absurd A.
+  elim H.
+  intro na.
+  intro nna.
+  assumption.
+  elim H.
+  intro na.
+  unfold not in na.
+  intro nna.
+  unfold not in nna.
+  elim nna.
+  assumption.
 Qed.
 
 (* Ej 6.1 *)
