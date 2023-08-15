@@ -30,38 +30,59 @@ Proof.
   assumption.
 Qed.
 
-(*Ej 2.1 *)
-Theorem e21: (A->B)->(B->C)->A->C.
+(* Ej 1.2 *)
+(* 1. *)
+Theorem e121: (A->B)->(B->C)->A->C.
 Proof.
-...
+  intro H1.
+  intro H2.
+  intro H3.
+  apply H2.
+  apply H1.
+  assumption.
 Qed.
 
-(*Ej 2.2 *)
-Theorem e22: (A->B->C)->B->A->C.
+(* 2. *)
+Theorem e122: (A->B->C)->B->A->C.
 Proof.
-...
+  intros.
+  apply H.
+  assumption.
+  assumption.
 Qed.
 
-(*Ej 3.1 *)
-Theorem e31_1: A->A->A.
+(*Ej 1.3 *)
+(* 1. *)
+Theorem e131_1: A->A->A.
 Proof.
-...
+  intros f g.
+  exact f.
 Qed.
 
-Theorem e31_2: A->A->A.
+Theorem e131_2: A->A->A.
 Proof.
-...
+  intros H1 H2.
+  assumption.
 Qed.
 
-(* Ej 3.2 *)
-Theorem e32_1: (A->B->C)->A->(A->C)->B->C.
+(* 2. *)
+Theorem e132_1: (A->B->C)->A->(A->C)->B->C.
 Proof.
-...
+  intro f.
+  intro a.
+  intro g.
+  intro b.
+  apply g.
+  assumption.
 Qed.
 
-Theorem e32_2: (A->B->C)->A->(A->C)->B->C.
+Theorem e132_2: (A->B->C)->A->(A->C)->B->C.
 Proof.
-...
+  intro f.
+  intro a.
+  intro g.
+  apply f.
+  exact a.
 Qed.
 
 (* Ej 4.1 *)
