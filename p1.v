@@ -289,13 +289,20 @@ Variables A B C: Prop.
 (* Ej 7.1 *)
 Theorem e71: A \/ ~A -> ~~A->A.
 Proof.
-...
+  intro ana.
+  intro nna.
+  elim ana.
+  intro a.
+  assumption.
+  intro na.
+  elim nna.
+  assumption.
 Qed.
 
 (* Ej 7.2 *)
 Theorem e72: A\/~A -> ((A->B) \/ (B->A)).
 Proof.
-...
+  
 Qed.
 
 (* Ej 7.3 *)
