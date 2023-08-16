@@ -229,19 +229,55 @@ Qed.
 (* Ej 6.1 *)
 Theorem e61: (A\/B) -> ~(~A/\~B).
 Proof.
-...
+  intro ab.
+  unfold not.
+  intro and.
+  apply and.
+  elim ab.
+  elim and.
+  intro af.
+  intro bf.
+  intro a.
+  elim af.
+  assumption.
+  intro b.
+  assumption.
 Qed.
 
 (* Ej 6.2 *)
 Theorem e62: A\/B <-> B\/A.
 Proof.
-...
+  unfold iff.
+  split.
+  (* => *)
+  intro ab.
+  elim ab.
+  intro a.
+  right.
+  assumption.
+  intro b.
+  left.
+  assumption.
+  (* <= *)
+  intro ba.
+  elim ba.
+  intro b.
+  right.
+  assumption.
+  intro a.
+  left.
+  assumption.
 Qed.
 
 (* Ej 6.3 *)
 Theorem e63: A\/B -> ((A->B)->B).
 Proof.
-...
+  intro ab.
+  intro f.
+  elim ab.
+  assumption.
+  intro b.
+  assumption.
 Qed.
 
 End P1.
