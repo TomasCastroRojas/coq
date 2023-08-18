@@ -302,13 +302,38 @@ Qed.
 (* Ej 7.2 *)
 Theorem e72: A\/~A -> ((A->B) \/ (B->A)).
 Proof.
-  
+  intro aona.
+  elim aona.
+  (* Caso A*)
+  intro a.
+  right.
+  intro b.
+  assumption.
+  (* Caso ~A*)
+  intro na.
+  left.
+  intro a.
+  elim na.
+  assumption.
 Qed.
 
 (* Ej 7.3 *)
 Theorem e73: (A \/ ~A) -> ~(A /\ B) -> ~A \/ ~B.
 Proof.
-...
+  intro aona.
+  intro nayb.
+  elim aona.
+  intro a.
+  right.
+  unfold not.
+  intro b.
+  apply nayb.
+  split.
+  assumption.
+  assumption.
+  intro na.
+  left.
+  assumption.
 Qed.
 
 
@@ -318,19 +343,51 @@ Check classic.
 (* Ej 8.1 *)
 Theorem e81: forall A:Prop, ~~A->A.
 Proof.
-...
+  intro.
+  intro nna0.
+  elim (classic A0).
+  intro a0.
+  assumption.
+  intro na0.
+  elim nna0.
+  assumption.
 Qed.
 
 (* Ej 8.2 *)
 Theorem e82: forall A B:Prop, (A->B)\/(B ->A).
 Proof.
-...
+  intro.
+  intro.
+  elim (classic A0).
+(* Caso A *)
+  intro a0.
+  right.
+  intro b0.
+  assumption.
+(* Caso ~A *)
+  intro na0.
+  left.
+  intro a0.
+  elim na0.
+  assumption.
 Qed.
 
 (* Ej 8.3 *)
 Theorem e83: forall A B:Prop, ~(A/\B)-> ~A \/ ~B.
 Proof.
-...
+  intros.
+  elim (classic A0).
+  intro a0.
+  right.
+  unfold not.
+  intro b0.
+  apply H.
+  split.
+  assumption.
+  assumption.
+  intro na0.
+  left.
+  assumption. 
 Qed.
 
 End Logica_Clasica.
@@ -342,12 +399,37 @@ Section Traducciones.
 (* Definiciones *)
 Variable NM RED CONS UTIL : Prop.
 
-Hypothesis H1 : ...
-Hypothesis H2 : ...
+Hypothesis H1 : NM \/ ~RED.
+Hypothesis H2 : CONS \/ ~UTIL.
 
-Theorem ej9 : ...
+Theorem ej9 : ~NM /\ UTIL -> CONS /\ ~RED.
 Proof.
-...
+  intro H3.
+  split.
+(* CONS *)
+  elim H3.
+  intro N.
+  intro U.
+  elim H2.
+  (* CONS *)
+    intro c.
+    assumption.
+  (* ~UTIL *)
+    intro NU.
+    elim NU.
+    assumption.
+(* ~RED *)
+  elim H3.
+  intro N.
+  intro U.
+  elim H1.
+  (* NM *)
+    intro N2.
+    elim N.
+    assumption.
+  (* ~RED *)
+    intro NRED.
+    assumption.
 Qed.
 
 
