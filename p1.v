@@ -444,11 +444,20 @@ Variable PA:Prop. (* el paciente tiene piel amarillenta *)
 Variable PH:Prop. (* el paciente tiene hepatitis *)
 Variable PR:Prop. (* el paciente tiene rubeola *)
 
-Hypothesis Regla1: ...
-Hypothesis Regla2: ...
-Hypothesis Regla3: ...
+Hypothesis Regla1: (PF \/ PA) -> (PH \/ PR).
+Hypothesis Regla2: ~ PR \/ PF.
+Hypothesis Regla3: (PH /\ ~PR) -> PA.
 
 
-Theorem ej12: (~PA /\ PF) -> ...
+Theorem ej12: (~PA /\ PF) -> (PH \/ PR).
+Proof.
+  intro HH.
+  apply Regla1.
+  left.
+  elim HH.
+  intro a.
+  intro b.
+  assumption.
+Qed.
 
 End Traducciones.
