@@ -118,9 +118,24 @@ Variable R S : U -> U -> Prop.
 Definition H1 := forall x:U, (R x x).
 Definition H2 := forall x y z:U, (R x y) /\ (R x z) -> (R y z).
 
-Theorem e231: H1 /\ H2 -> ... 
+Definition Sym := forall x y: U, (R x y) -> (R y x).
+Definition Trans := forall x y z:U, (R x y) /\ (R y z) -> (R x z).
+
+Theorem e231: H1 /\ H2 -> H1 /\ Sym /\ Trans.
 Proof.
-  ...
+  intro H1H2.
+  split.
+  elim H1H2.
+  intros; assumption.
+  elim H1H2.
+  intros H1 H2.
+  split.
+  (* Simetrica *)
+    intro.
+    intro.
+    intro H.
+    
+    
 Qed.
 
 Definition Irreflexiva := ...
