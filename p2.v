@@ -46,18 +46,29 @@ Variable R S: U -> U -> Prop.
 
 Theorem e21 : (forall x:U, ((A x)-> ~(forall x:U, ~ (A x)))).
 Proof.
-  
+  intro.
+  intro.
+  intro.
+  unfold not in H0.
+  apply H0 with (x := x).
+  assumption.
 Qed.
 
 Theorem e22 : (forall x y:U, ((R x y)))-> (forall x:U, (R x x)).
 Proof.
-  
+  intro.
+  intro.
+  apply H.
 Qed.
 
 Theorem e23 : (forall x:U, ((P -> (A x))))
                         -> (P -> (forall x: U, (A x))).
 Proof.
-  
+  intro.
+  intro.
+  intro.
+  apply H.
+  assumption.
 Qed.
 
 
@@ -65,14 +76,31 @@ Theorem e24 : (forall x:U, ((A x) /\ (B x)))
                         -> (forall x:U, (A x))
                           -> (forall x:U, (B x)).
 Proof.
-  
+  intro.
+  intro.
+  intro.
+  apply H.
 Qed.
 
 
 Theorem e25 : (forall x:U, (A x)) \/ (forall x:U, (B x)) -> 
                       forall x:U, ~(~(A x) /\ ~(B x)).
 Proof.
-  
+  intros.
+  unfold not.
+  intro NAyNB.
+  elim NAyNB.
+  intro NA.
+  intro NB.
+  elim H.
+  (* A x *)
+    intro.
+    apply NA.
+    apply H0.
+  (* B x *)
+    intro.
+    apply NB.
+    apply H0.
 Qed.
 
 
