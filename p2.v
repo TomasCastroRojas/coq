@@ -8,12 +8,16 @@ Variable R S: U -> U -> Prop.
 
 Theorem e11 : (forall x:U, A(x)) -> forall y:U, A(y).
 Proof.
-  
+  intro.
+  intro.
+  apply H.
 Qed.
 
 Theorem e12 : (forall x y:U, (R x y)) -> forall x y:U, (R y x).
 Proof.
-  
+  intro.
+  intros.
+  apply H.
 Qed.
 
 
@@ -21,7 +25,10 @@ Theorem e13 : (forall x: U, ((A x)->(B x)))
                         -> (forall y:U, (A y))
                           -> (forall z:U, (B z)).
 Proof.
-  
+  intro.
+  intros.
+  apply H.
+  apply H0.
 Qed.
 
 
