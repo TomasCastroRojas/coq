@@ -447,17 +447,34 @@ Variable PR:Prop. (* el paciente tiene rubeola *)
 Hypothesis Regla1: (PF \/ PA) -> (PH \/ PR).
 Hypothesis Regla2: ~ PR \/ PF.
 Hypothesis Regla3: (PH /\ ~PR) -> PA.
+Require Import Classical.
+Check classic.
 
-
-Theorem ej12: (~PA /\ PF) -> (PH \/ PR).
+Theorem ej12: (~PA /\ PF) -> PR.
 Proof.
-  intro HH.
-  apply Regla1.
-  left.
-  elim HH.
-  intro a.
-  intro b.
-  assumption.
+  intro and; elim and; intros not_pa pf.
+  elim (classic PR).
+  intro;assumption.
+  intro not_pr.
+  cut (PF \/ PA).
+  intro pf_or_pa.
+    apply Regla1 in pf_or_pa.
+    elim pf_or_pa.
+    intro ph.
+    cut False.
+    intro f.
+    elim f.
+    cut (PH /\ ~PR).
+    intro ph_and_not_pr.
+    apply Regla3 in ph_and_not_pr.
+    absurd PA.
+    exact not_pa.
+    exact ph_and_not_pr.
+    split.
+    assumption.
+    assumption.
+    intro;assumption.
+  left;assumption.
 Qed.
 
 End Traducciones.
