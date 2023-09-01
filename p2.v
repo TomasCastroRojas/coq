@@ -288,20 +288,32 @@ Variable f        : nat -> nat.
 
 Theorem e51: forall x:nat, exists y:nat, (P(x)->P(y)).
 Proof.
-  
+  intro xx.
+  exists xx.
+  intro Px.
+  assumption.
 Qed.
 
 Theorem e52: exists x:nat, (P x)
                             -> (forall y:nat, (P y)->(Q y))
                                -> (exists z:nat, (Q z)).
 Proof.
-  
+  exists a.
+  intro Pa.
+  intro ForAllPyThenQy.
+  exists a.
+  apply (ForAllPyThenQy a).
+  assumption.
 Qed.
 
 
 Theorem e53: even(a) -> (forall x:nat, (even(x)->odd (S(x)))) -> exists y: nat, odd(y).
 Proof.
-  
+  intro even_a.
+  intro ForAllEvenThenOddSucc.
+  exists (S a).
+  apply (ForAllEvenThenOddSucc a).
+  exact even_a.
 Qed.
 
 
@@ -311,7 +323,16 @@ Theorem e54: (forall x:nat, P(x) /\ odd(x) ->even(f(x)))
                             -> P(S(a))
                             -> exists z:nat, even(f(z)).
 Proof.
-  
+  intro ForAllPx_and_Oddx.
+  intro ForAllEvenxThenOddSuccx.
+  intro even_a.
+  intro P_succ_a.
+  exists (S a).
+  apply (ForAllPx_and_Oddx (S a)).
+  split.
+  exact P_succ_a.
+  apply (ForAllEvenxThenOddSuccx a).
+  exact even_a.
 Qed.
 
 End Ejercicio5.
