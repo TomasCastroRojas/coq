@@ -212,25 +212,63 @@ Qed.
 Theorem e43: (exists x:U, ~(A x)) -> 
                 ~(forall x:U, (A x)).
 Proof.
-  
+  intro ExNotA.
+  unfold not.
+  intro ForXA.
+  elim ExNotA.
+  intro xx.
+  unfold not.
+  intro NotA.
+  apply NotA.
+  apply (ForXA xx).
 Qed.
 
 Theorem e44: (forall x:U, ((A x) /\ (B x)))
                 -> (forall x:U, (A x)) /\ (forall x:U, (B x)).
 Proof.
-
+  intro ForAandB.
+  split.
+  intro x1.
+  apply (ForAandB x1).
+  intro x2.
+  apply (ForAandB x2).
 Qed.
 
 Theorem e45: (exists x:U, (A x \/ B x))->
                 (exists x:U, A x) \/ (exists x:U, B x).
 Proof.
-
+  intro ExAorB.
+  elim ExAorB.
+  intro xx.
+  intro AorB.
+  elim AorB.
+  (* A x *)
+    intro Ax.
+    left.
+    exists xx.
+    assumption.
+  (* B x *)
+    intro Bx.
+    right.
+    exists xx.
+    assumption.
 Qed.
 
 Theorem e46: (forall x:U, A x) \/ (forall y:U, B y) 
                 -> forall z:U, A z \/ B z.
 Proof.
-
+  intro ForAllAorForAllB.
+  elim ForAllAorForAllB.
+  (* ForAll x, A x *)
+    intro ForAllA.
+    intro zz.
+    left.
+    apply (ForAllA zz).
+  (* ForAll x, B x *)
+    intro ForAllB.
+    intro zz.
+    right.
+    apply (ForAllB zz).
 Qed.
 
 
