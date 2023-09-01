@@ -354,17 +354,24 @@ Axiom monoticity: forall n m:nat, (le n m) -> (le (f n) (f m)).
 
 Lemma le_x_Sx: forall x:nat, (le x (S x)).
 Proof.
-  
+  intro xx.
+  apply (le_S xx).
+  apply (le_n xx).
 Qed.
 
 Lemma le_x_SSx: forall x:nat, (le x (S (S x))).
 Proof.
-  
+  intro xx.
+  apply (le_S xx).
+  apply (le_S xx).
+  apply (le_n xx).
 Qed.
 
 Theorem T1: forall a:nat, exists b:nat, (le (f a) b).
 Proof.
-  
+  intro aa.
+  exists (f aa).
+  apply (le_n (f aa)).
 Qed.
 
 End Ejercicio6.
