@@ -134,16 +134,41 @@ Proof.
     intro.
     intro.
     intro H.
-    
-    
+    apply (H2 x y x).
+    split.
+    assumption.
+    apply (H1 x).
+  (* Transitiva *)
+    intro xx.
+    intro yy.
+    intro zz.
+    intro Rxy_and_Ryz.
+    elim Rxy_and_Ryz.
+    intros Rxy Ryz.
+    apply (H2 yy xx zz).
+    split.
+    (* Transitiva de nuevo *)
+      apply (H2 xx yy xx).
+      split.
+      assumption.
+      apply (H1 xx).
+    assumption.
 Qed.
 
-Definition Irreflexiva := ...
-Definition Asimetrica := ...
+Definition Irreflexiva := forall x:U, ~ (R x x).
+Definition Asimetrica := forall x y:U, (R x y) -> ~ (R y x).
  
 Lemma e232 : Asimetrica -> Irreflexiva.
 Proof.
-  ...
+  unfold Asimetrica.
+  intro.
+  unfold Irreflexiva.
+  intro xx.
+  unfold not in *.
+  intro Rxx.
+  apply (H xx xx).
+  assumption.
+  assumption.
 Qed.
 
 End Ejercicio3.
@@ -159,13 +184,29 @@ Variable R : U->U->Prop.
 Theorem e41: (exists x:U, exists y:U, (R x y)) -> 
                 exists y:U, exists x:U, (R x y).
 Proof.
-  
+  intro Exy.
+  elim Exy.
+  intro xx.
+  intro Ey.
+  elim Ey.
+  intro yy.
+  intro Rxy.
+  exists yy.
+  exists xx.
+  assumption. 
 Qed.
 
 Theorem e42: (forall x:U, A(x)) -> 
                 ~ exists x:U, ~ A(x).
 Proof.
-  
+  intro Ax.
+  unfold not.
+  intro NotEx.
+  elim NotEx.
+  intro.
+  intro NotAx.
+  apply NotAx.
+  apply (Ax x).
 Qed.
 
 Theorem e43: (exists x:U, ~(A x)) -> 
