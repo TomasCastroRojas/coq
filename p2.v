@@ -386,17 +386,17 @@ Variable A B : U -> Prop.
 Theorem e71: (forall x:U, ((A x) /\ (B x)))
                        -> (forall x:U, (A x)) /\ (forall x:U, (B x)).
 Proof.
-  
+  intro AandB; split ; [apply AandB | apply AandB].
 Qed.
 
 Theorem e72: (exists x:U, (A x \/ B x))->(exists x:U, A x )\/(exists x:U, B x).
 Proof.
-  
+  intro ExisteAorB; elim ExisteAorB; intros x AorB; elim AorB; intro H; [left | right]; exists x; exact H.
 Qed.
 
-Theorem e73: (forall x:U, A x) \/ (forall y:U, B y) → forall z:U, A z \/ B z.
+Theorem e73: (forall x:U, A x) \/ (forall y:U, B y) -> forall z:U, A z \/ B z.
 Proof.
-  
+  intro AllAorAllB; elim AllAorAllB; intros H x; [left | right]; apply (H x).
 Qed.
 
 End Ejercicio7.
