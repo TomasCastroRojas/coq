@@ -410,18 +410,38 @@ Variables R : U -> U -> Prop.
 
 Theorem e81: (exists y : U, forall x : U, R x y) -> forall x : U, exists y : U, R x y.
 Proof.
-
+  intro H.
+  elim H.
+  intro x.
+  intro H1.
+  intro xx.
+  exists x.
+  apply (H1 xx).
 Qed.
 
 Theorem e82:
   (exists x:U, True) /\ (forall x:U, (T x) \/ (V x))
     -> (exists z:U, (T z)) \/ (exists w:U, (V w)).
 Proof.
-
+  intro Hand.
+  elim Hand.
+  intros true TxorVx.
+  elim true.
+  intros u t.
+  elim (TxorVx u).
+  intro Tu.
+  left.
+  exists u.
+  exact Tu.
+  intro Vu.
+  right.
+  exists u.
+  exact Vu.
 Qed.
 
 (* 
-Parte 8.3. La proposición (exists x:U, True) ...
+Parte 8.3. La proposición (exists x:U, True) es necesaria en el teorema anterior ya que se necesita un elemento
+           del conjunto U para poder instanciar el cuantificador universal
 *)
 
 End Ejercicio8.
