@@ -456,12 +456,30 @@ Variables A : U -> Prop.
 
 Lemma not_ex_not_forall: (~exists x :U, ~A x) -> (forall x:U, A x).
 Proof.
-  
+  unfold not.
+  intro NotExNotA.
+  intro xx.
+  elim (classic (A xx)).
+  (* A xx *)
+    intro Ax;exact Ax.
+  (* ~ A xx *)
+    intro NotAx.
+    absurd (exists x:U, A x -> False).
+    exact NotExNotA.
+    exists xx.
+    exact NotAx.
 Qed.
 
 Lemma not_forall_ex_not: (~forall x :U, A x) -> (exists x:U,  ~A x).
 Proof.
-  
+  unfold not.
+  intro NotForallA.
+  apply NNPP.
+  unfold not.
+  intro NotExNotA.
+  apply NotForallA.
+  apply not_ex_not_forall.
+  exact NotExNotA.
 Qed.
 
 End Ejercicio9.
