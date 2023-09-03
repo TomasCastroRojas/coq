@@ -494,7 +494,7 @@ Variable  S  : nat -> nat.
 
 Axiom disc   : forall n:nat, ~O=(S n).
 Axiom inj    : forall n m:nat, (S n)=(S m) -> n=m.
-Axiom allNat : forall n: Nat, n = O \/ exists m: nat, S m = n.
+Axiom allNat : forall n: nat, n = O \/ exists m: nat, S m = n.
 
 Variable sum prod : nat->nat->nat.
 
@@ -505,42 +505,128 @@ Axiom prodS  : forall n m :nat, (prod n (S m))=(sum n (prod n m)).
 
 Lemma L10_1: (sum (S O) (S O)) = (S (S O)).
 Proof.
-  
+  rewrite (sumS (S O) O).
+  rewrite (sum0 (S O)).
+  reflexivity.
 Qed.
 
 Lemma L10_2: forall n :nat, ~(O=n /\ (exists m :nat, n = (S m))).
 Proof.
-  
+  intro a.
+  unfold not.
+  intro H.
+  elim H.
+  intro equal0.
+  intro ExSucc.
+  elim ExSucc.
+  intro b.
+  intro AequalSuccB.
+  apply (disc b).
+  transitivity a.
+  exact equal0.
+  exact AequalSuccB.
 Qed.
 
 Lemma prod_neutro: forall n :nat, (prod n (S O)) = n.
 Proof.
-  
+  intro a.
+  rewrite (prodS a O).
+  rewrite (prod0 a).
+  rewrite (sum0 a).
+  reflexivity.
 Qed.
 
 Lemma diff: forall n:nat, ~(S (S n))=(S O).
 Proof.
-  
+  intro a.
+  unfold not.
+  intro H.
+  apply (inj (S a) O) in H.
+  apply (disc a).
+  symmetry.
+  exact H.
 Qed.
 
 Lemma L10_3: forall n: nat, exists m: nat, prod n (S m) = sum n n. 
 Proof.
-  ...
+  intro a.
+  exists (S O).
+  rewrite (prodS a (S O)).
+  rewrite (prodS a O).
+  rewrite (prod0 a).
+  rewrite (sum0 a).
+  reflexivity.
 Qed.
 
 Lemma L10_4: forall m n: nat, n <> O -> sum m n <> O.  
 Proof.
-  ...
+  intros a b.
+  unfold not.
+  intro bNot0.
+  intro aPlusbEqual0.
+  elim (allNat b).
+  exact bNot0.
+  intro ExSuccEqualb.
+  elim ExSuccEqualb.
+  intro c.
+  intro H.
+  rewrite <- H in aPlusbEqual0.
+  rewrite sumS in aPlusbEqual0.
+  apply (disc (sum a c)).
+  symmetry. 
+  exact aPlusbEqual0.
 Qed.
+
+(* Agrego axioma porque para probarlo necesitaria definir nat como un tipo inductivo *)
+Axiom plus_conm : forall n m:nat, sum n m = sum m n.
 
 Lemma L10_5: forall m n: nat, sum m n = O -> m = O /\ n = O.  
 Proof.
-  ...
+  intros a b sum_0.
+  elim (allNat a); elim (allNat b).
+  - intros; split; assumption.
+  - intros; split; try assumption.
+    rewrite H0 in sum_0.
+    rewrite (plus_conm O b) in sum_0.
+    rewrite sum0 in sum_0.
+    exact sum_0.
+  - intros; split; try assumption.
+    rewrite H in sum_0.
+    rewrite sum0 in sum_0.
+    exact sum_0.
+  - intros.
+    split.
+    elim H.
+    intros.
+    rewrite <- H3 in sum_0.
+    rewrite sumS in sum_0.
+    elim (disc (sum a x)).
+    symmetry.
+    exact sum_0.
+    
+    elim H0.
+    intros.
+    rewrite <- H3 in sum_0.
+    rewrite (plus_conm (S x) b) in sum_0.
+    rewrite sumS in sum_0.
+    elim (disc (sum b x)).
+    symmetry.
+    exact sum_0.
 Qed.
 
 Lemma L10_6: forall m n: nat, prod m n = O -> m = O \/ n = O.  
 Proof.
-  ...
+  intros a b prod_0.
+  elim (allNat a); elim (allNat b); intros.
+  - right; exact H.
+  - left; exact H0.
+  - right; exact H.
+  - elim H; intros.
+    elim H0; intros.
+    rewrite <- H3 in prod_0.
+    rewrite <- H4 in prod_0.
+    rewrite prodS in prod_0.
+    
 Qed.
 
 
