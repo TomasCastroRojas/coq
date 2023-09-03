@@ -486,7 +486,7 @@ End Ejercicio9.
 
 
 
-Section Ejercicio10.
+Section PeanoNaturals.
 
 Variable nat : Set.
 Variable  O  : nat.
@@ -502,6 +502,9 @@ Axiom sum0   : forall n :nat, (sum n O)=n.
 Axiom sumS   : forall n m :nat, (sum n (S m))=(S (sum n m)).
 Axiom prod0  : forall n :nat, (prod n O)=O.
 Axiom prodS  : forall n m :nat, (prod n (S m))=(sum n (prod n m)).
+
+Section Ejercicio10.
+
 
 Lemma L10_1: (sum (S O) (S O)) = (S (S O)).
 Proof.
@@ -643,7 +646,22 @@ Axiom leinv: forall n m:nat, (le n m) -> n=O \/
 
 Lemma notle_s_o: forall n:nat, ~(le (S n) O).
 Proof.
-  
+  intro a.
+  unfold not.
+  intro le_a_0.
+  elim (leinv (S a) O).
+  - intro Sa_equal0.
+    apply (disc a).
+    symmetry; exact Sa_equal0.
+  - intro e.
+    elim e; intros b e1.
+    elim e1; intros c ands.
+    elim ands; intros Sa_equal_Sb and.
+    elim and; intros Sc_equal0 lebc.
+    apply (disc c).
+    exact Sc_equal0.
+  - exact le_a_0.
 Qed.
 
 End Ejercicio11.
+End PeanoNaturals.
