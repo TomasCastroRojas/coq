@@ -617,18 +617,19 @@ Qed.
 Lemma L10_6: forall m n: nat, prod m n = O -> m = O \/ n = O.  
 Proof.
   intros a b prod_0.
-  elim (allNat a); elim (allNat b); intros.
-  - right; exact H.
-  - left; exact H0.
-  - right; exact H.
-  - elim H; intros.
-    elim H0; intros.
-    rewrite <- H3 in prod_0.
-    rewrite <- H4 in prod_0.
+  elim (allNat b).
+  - intro b0; right; exact b0.
+  - intro bNot0.
+    elim bNot0.
+    intro c.
+    intro succ_c_equalb.
+    left.
+    rewrite <- succ_c_equalb in prod_0.
     rewrite prodS in prod_0.
-    
+    elim (L10_5 a (prod a c)).
+    intros a0 H; exact a0.
+    exact prod_0.
 Qed.
-
 
 End Ejercicio10.
 
