@@ -583,6 +583,30 @@ Qed.
 (* Agrego axioma porque para probarlo necesitaria definir nat como un tipo inductivo *)
 Axiom plus_conm : forall n m:nat, sum n m = sum m n.
 
+Lemma L10_5_v2: forall m n: nat, sum m n = O -> m = O /\ n = O.
+Proof.
+  intros a b sum_0.
+  elim (allNat b).
+  - intro b0.
+    split.
+    rewrite b0 in sum_0.
+    rewrite sum0 in sum_0.
+    exact sum_0.
+    exact b0.
+  - intro e; elim e; intros c Sc_equalb.
+    split.
+    rewrite <- Sc_equalb in sum_0.
+    rewrite sumS in sum_0.
+    elim (disc (sum a c)).
+    symmetry.
+    exact sum_0.
+    elim (disc a).
+    rewrite <- Sc_equalb in sum_0.
+    rewrite <- sum_0.
+    rewrite sumS.
+    admit.
+Admitted.
+
 Lemma L10_5: forall m n: nat, sum m n = O -> m = O /\ n = O.  
 Proof.
   intros a b sum_0.
