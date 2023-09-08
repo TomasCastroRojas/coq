@@ -486,8 +486,11 @@ End Ejercicio9.
 
 
 
-Section PeanoNaturals.
 
+
+
+
+Section Ejercicio10.
 Variable nat : Set.
 Variable  O  : nat.
 Variable  S  : nat -> nat.
@@ -502,9 +505,6 @@ Axiom sum0   : forall n :nat, (sum n O)=n.
 Axiom sumS   : forall n m :nat, (sum n (S m))=(S (sum n m)).
 Axiom prod0  : forall n :nat, (prod n O)=O.
 Axiom prodS  : forall n m :nat, (prod n (S m))=(sum n (prod n m)).
-
-Section Ejercicio10.
-
 
 Lemma L10_1: (sum (S O) (S O)) = (S (S O)).
 Proof.
@@ -580,10 +580,7 @@ Proof.
   exact aPlusbEqual0.
 Qed.
 
-(* Agrego axioma porque para probarlo necesitaria definir nat como un tipo inductivo *)
-Axiom plus_conm : forall n m:nat, sum n m = sum m n.
-
-Lemma L10_5_v2: forall m n: nat, sum m n = O -> m = O /\ n = O.
+Lemma L10_5: forall m n: nat, sum m n = O -> m = O /\ n = O.
 Proof.
   intros a b sum_0.
   elim (allNat b).
@@ -604,39 +601,8 @@ Proof.
     rewrite <- Sc_equalb in sum_0.
     rewrite <- sum_0.
     rewrite sumS.
-    admit.
-Admitted.
-
-Lemma L10_5: forall m n: nat, sum m n = O -> m = O /\ n = O.  
-Proof.
-  intros a b sum_0.
-  elim (allNat a); elim (allNat b).
-  - intros; split; assumption.
-  - intros; split; try assumption.
-    rewrite H0 in sum_0.
-    rewrite (plus_conm O b) in sum_0.
-    rewrite sum0 in sum_0.
-    exact sum_0.
-  - intros; split; try assumption.
-    rewrite H in sum_0.
-    rewrite sum0 in sum_0.
-    exact sum_0.
-  - intros.
-    split.
-    elim H.
-    intros.
-    rewrite <- H3 in sum_0.
     rewrite sumS in sum_0.
-    elim (disc (sum a x)).
-    symmetry.
-    exact sum_0.
-    
-    elim H0.
-    intros.
-    rewrite <- H3 in sum_0.
-    rewrite (plus_conm (S x) b) in sum_0.
-    rewrite sumS in sum_0.
-    elim (disc (sum b x)).
+    elim (disc (sum a c)).
     symmetry.
     exact sum_0.
 Qed.
@@ -675,17 +641,16 @@ Proof.
   intro le_a_0.
   elim (leinv (S a) O).
   - intro Sa_equal0.
-    apply (disc a).
+    apply (disc nat O  S a).
     symmetry; exact Sa_equal0.
   - intro e.
     elim e; intros b e1.
     elim e1; intros c ands.
     elim ands; intros Sa_equal_Sb and.
     elim and; intros Sc_equal0 lebc.
-    apply (disc c).
+    apply (disc nat O S c).
     exact Sc_equal0.
   - exact le_a_0.
 Qed.
 
 End Ejercicio11.
-End PeanoNaturals.
