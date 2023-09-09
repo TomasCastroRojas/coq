@@ -2,21 +2,61 @@ Section Ejercicio1.
 Variable A B C: Set.
 
 Definition term1_1 : (A->A->A)->A->A := 
-  fun ...
+  fun f x => f x x.
 Check term1_1.
 
 Lemma term1_1_tauto: (A->A->A)->A->A.
 Proof.
-  ...
+  tauto.
 Qed. 
 
 Lemma term1_1_exact: (A->A->A)->A->A.
 Proof.
-  exact ...
+  exact (fun f x => f x x).
 Qed.
 
-...
+Definition term1_2 : (A -> B) -> (B -> C) -> A -> B -> C :=
+  fun f g a b => g (f a).
+Check term1_2.
 
+Lemma term1_2_tauto: (A -> B) -> (B -> C) -> A -> B -> C.
+Proof.
+  tauto.
+Qed. 
+
+Lemma term1_2_exact: (A -> B) -> (B -> C) -> A -> B -> C.
+Proof.
+  exact (fun f g a b => g (f a)).
+Qed.
+
+Definition term1_3 : (A -> B) -> (A -> B -> C) -> A -> C :=
+  fun f g a => g a (f a).
+Check term1_2.
+
+Lemma term1_3_tauto: (A -> B) -> (A -> B -> C) -> A -> C.
+Proof.
+  tauto.
+Qed. 
+
+Lemma term1_3_exact: (A -> B) -> (A -> B -> C) -> A -> C.
+Proof.
+  exact (fun f g a => g a (f a)).
+Qed.
+
+Definition term1_4 : (A -> B) -> ((A -> B) -> C)-> C :=
+  fun f g => g f.
+Check term1_2.
+
+Lemma term1_4_tauto: (A -> B) -> ((A -> B) -> C)-> C.
+Proof.
+  tauto.
+Qed. 
+
+Lemma term1_4_exact: (A -> B) -> ((A -> B) -> C)-> C.
+Proof.
+  exact (fun f g => g f).
+Qed.
+ 
 End Ejercicio1.
 
 
@@ -25,10 +65,23 @@ Variable A B C: Set.
 
 (*[x:A->B->C][y:A][z:B]((x y)z)*)
 Definition term2_1: (A->B->C)->A->B->C :=
-  fun ...
+  fun x y z => (x y) z.
 Check term2_1.
 
-...
+(*[x:?][y:?][z:?] (x (y z)*)
+Definition term2_2: (B->C) -> (A -> B) -> A -> C :=
+  fun x y z => x (y z).
+Check term2_2.
+
+(*[z:?] ([x:?][y:?](x y) z)*)
+Definition term2_3 : B -> (A -> B -> C) -> A -> C :=
+  fun z => fun x y => (x y) z.
+Check term2_3.
+
+(*([x:?]x [y:?]y)*) 
+Definition term2_4 : ((A -> A) -> B) -> B :=
+  fun x => x (fun y => y).
+Check term2_4.
 
 End Ejercicio2.
 
@@ -37,16 +90,28 @@ Section Ejercicio3.
 Variable A B C: Set.
 
 Definition apply: (A->B)->A->B :=
-  fun ...
+  fun f a => (f a).
 Check apply.
 
-...
-
 Definition applyGen: forall A B : Set, (A->B)->A->B :=
-  fun ..
+  fun a b (f:a->b) (x:a) => (f x).
 Check applyGen.
 
-...
+Definition o :  (A->B)->(B->C)->(A->C) :=
+  fun f g => fun x => g (f x).
+Check o.
+
+Definition oGen : forall A B C : Set, (A->B)->(B->C)->(A->C) :=
+  fun a b c (f:a -> b) (g:b->c) => fun x:a => g (f x).
+Check oGen.
+
+Definition twice : (A -> A) -> A -> A :=
+  fun f x => f (f x).
+Check twice.
+
+Definition twiceGen : forall A : Set, (A -> A) -> A -> A :=
+  fun a (f:a->a) (x:a) => f (f x).
+Check twiceGen.
 
 End Ejercicio3.
 
