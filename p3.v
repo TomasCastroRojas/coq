@@ -174,14 +174,15 @@ Definition Zero (X : Set) (o : X) (f : X -> X) := o.
 Definition Uno  (X : Set) (o : X) (f : X -> X) := f (Zero X o f).
 
 (* 6.1 *)
-Definition Dos  ...
+Definition Dos (X : Set) (o : X) (f : X -> X) := f (Uno X o f).
 
 (* 6.2 *)
-Definition Succ ...
+Definition Succ (n: N) : N := fun (X: Set) (o: X) (f : X -> X) => f (n X o f).
 
 Lemma succUno : Succ Uno = Dos.
 Proof.
-
+  cbv delta beta.
+  reflexivity.
 Qed.
 
 (* 6.3 *)
@@ -189,16 +190,18 @@ Definition Plus (n m : N) : N
                 := fun (X : Set) (o : X) (f : X -> X) => n X (m X o f) f.
 
 
-Infix "++" := Plus (left associativity, at level 94).
+Infix "+++" := Plus (left associativity, at level 94).
 
-Lemma suma1: (Uno ++ Zero) = Uno.
+Lemma suma1: (Uno +++ Zero) = Uno.
 Proof.
-
+  compute.
+  reflexivity.
 Qed.
 
-Lemma suma2: (Uno ++ Uno) = Dos.
+Lemma suma2: (Uno +++ Uno) = Dos.
 Proof.
-
+  compute.
+  reflexivity.
 Qed.
 
 (* 6.4 *)
@@ -206,17 +209,19 @@ Definition Prod (n m : N) : N
                 := fun (X:Set) (o:X) (f:X->X) => m X o (fun y:X => n X y f).
 
 
-Infix "**" := ...
+Infix "**" := Prod (left associativity, at level 94).
 
 (* 6.5 *)
 Lemma prod1 : (Uno ** Zero) = Zero.
 Proof.
-
+  compute.
+  reflexivity.
 Qed.
 
 Lemma prod2: (Uno ** Dos) = Dos.
 Proof.
-
+  compute.
+  reflexivity.
 Qed.
 
 End Ejercicio6.
