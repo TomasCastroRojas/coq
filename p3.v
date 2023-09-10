@@ -119,12 +119,30 @@ End Ejercicio3.
 Section Ejercicio4.
 Variable A: Set.
 
-Definition id := ....
+Definition id := fun x:A => x.
 
-Theorem e4 : forall x:A, ...
+Theorem e4_1 : forall x:A, (oGen A A A id id) x = id x.
 Proof.
-
+  intro x.
+  cbv delta beta.
+  reflexivity.
 Qed.
+
+Theorem e4_2 : forall x:A, (oGen A A A id id) x = id x.
+Proof.
+  intro x.
+  compute.
+  reflexivity.
+Qed.
+
+Theorem e4_3 : forall x:A, (oGen A A A id id) x = id x.
+Proof.
+  intro x.
+  cbv delta.
+  simpl.
+  reflexivity.
+Qed.
+
 
 End Ejercicio4.
 
@@ -134,15 +152,17 @@ Section Ejercicio5.
 (* 5.1 *)
 Definition opI (A : Set) (x : A) := x.
 
-Definition opK ...
+Definition opK (A B : Set) (x: A) (y:B) := x.
 
-Definition opS ...
+Definition opS (A B C : Set) (f: A->B->C) (g: A -> B) (x:A) := (f x (g x)).
 
 (* 5.2 *)
 (* Para formalizar el siguiente lema, determine los tipos ?1 ... ?8 adecuados *)
-Lemma e52 : forall A B : Set, opS ?1 ?2 ?3 (opK ?4 ?5) (opK ?6 ?7) = opI ?8.
+Lemma e52 : forall A B : Set, opS A (B->A) A (opK A (B->A)) (opK A B) = opI A.
 Proof.
-
+  intros A B.
+  cbv delta beta.
+  reflexivity.
 Qed.
 
 End Ejercicio5.
