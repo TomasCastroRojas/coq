@@ -229,32 +229,43 @@ End Ejercicio6.
 
 Section Ejercicio7.
 (* 7.1 *)
-Definition Bool := ...
-Definition t    := ...
-Definition f    := ...
+Definition Bool := forall X:Set, X -> X -> X.
+Definition t    (X:Set) (x:X) (y:X) := x. 
+Definition f    (X:Set) (x:X) (y:X) := y.
 
 (* 7.2 *)
-Definition If ...
+Definition If (p q r:Bool):Bool := fun (X:Set) (x:X) (y:X) => p X (q X x y) (r X x y).
+
 
 (* 7.3 *)
-Definition Not ...
+Definition Not (p:Bool) : Bool := fun (X:Set) (x:X) (y:X) => p X (f X x y) (t X x y).
+
 
 Lemma CorrecNot : (Not t) = f /\ (Not f) = t.
 Proof.
-
+  split.
+  cbv delta beta.
+  reflexivity.
+  cbv delta beta.
+  reflexivity.
 Qed.
 
 (* 7.4 *)
-Definition And ...
+Definition And (p q: Bool) : Bool := fun (X:Set) (x:X) (y:X) => p X (q X x y) (f X x y).
 
-Definition And' ...
+Definition And' (p q: Bool) : Bool := fun (X:Set) (x:X) (y:X) => (If p q f X x y).
 
 (* 7.5 *)
-Infix "&" := ...
+Infix "&" := And (left associativity, at level 94).
 
 Lemma CorrecAnd : (t & t) = t /\ (f & t) = f /\ (t & f) = f.
 Proof.
-
+  compute.
+  split.
+  reflexivity.
+  split.
+  reflexivity.
+  reflexivity.
 Qed.
 
 End Ejercicio7.
@@ -269,31 +280,45 @@ Parameter empty    : ArrayNat 0.
 Parameter add      : forall n:nat, nat -> ArrayNat n -> ArrayNat (n + 1).
 
 (* 8.1 *)
-
+Check (add 0 (S 0) empty): ArrayNat (S 0).
 (* 8.2 *)
+Check (add 1 0 ((add 0 0 empty))): ArrayNat 2.
 
+Check (add 3 1 (add 2 0 (add 1 (S 0) ((add 0 0 empty))))) : ArrayNat 4.
 (* 8.3 *)
-Parameter Concat : ...
+Parameter Concat : forall n1 n2: nat, ArrayNat n1 -> ArrayNat n2 -> ArrayNat (plus n1 n2).
 
 (* 8.4 *)
-Parameter Zip : ...
+Parameter Zip : forall n:nat, ArrayNat n -> ArrayNat n -> (nat->nat->nat) -> ArrayNat n.
 
 (* 8.5 *)
-
+Check ArrayNat.
 (* 8.6 *)
-Parameter ArrayGen : ...
-Parameter emptyGen : ...
-Parameter addGen   : ...
-Parameter ZipGen   : ...
+Parameter ArrayGen : forall (X:Set) (n:nat), Set.
+Parameter emptyGen : forall (X:Set), ArrayGen X 0.
+Parameter addGen   : forall (X:Set) (n:nat), X -> ArrayGen X n -> ArrayGen X (n+1).
+Parameter ZipGen   : forall (X:Set) (n:nat), ArrayGen X n -> ArrayGen X n -> (X->X->X) -> ArrayGen X n.
 
 (* 8.7 *)
-Parameter ArrayBool : ...
+Parameter ArrayBool : forall n:nat, ArrayGen bool n.
 
 End ArrayNat.
 
 
 Section Ejercicio9.
-...
+(* 9.1 *)
+Parameter MatrizNat : forall n m : nat, Set.
+
+
+(* 9.2 *)
+Parameter prod : forall n m p : nat, MatrizNat n m -> MatrizNat m p -> MatrizNat n p.
+
+Parameter es_id: forall n : nat, MatrizNat n n -> bool.
+
+Parameter ins_fila : forall n m : nat, MatrizNat n m -> MatrizNat 1 m -> MatrizNat (n+1) m.
+
+Parameter ins_columna : forall n m , MatrizNat n m -> MatrizNat n 1 -> MatrizNat n (m+1).
+
 End Ejercicio9.
 
 
@@ -304,8 +329,8 @@ Parameter emptyA : forall X : Set, Array X 0.
 Parameter addA : forall (X : Set) (n : nat), X -> Array X n -> Array X (S n).
 
 Parameter Matrix : Set -> nat -> Set.
-Parameter emptyM : ...
-Parameter addM : ...
+Parameter emptyM : forall X:Set, Matrix X 0.
+Parameter addM : forall (X:Set) (n:nat), Matrix X n -> Matrix X (n+1) -> Matrix X (n+1).
 
 Definition M1 := ... (* matriz de una columna *)
 Definition M2 := ... (* matriz de dos columnas *) 
