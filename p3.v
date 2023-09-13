@@ -330,11 +330,15 @@ Parameter addA : forall (X : Set) (n : nat), X -> Array X n -> Array X (S n).
 
 Parameter Matrix : Set -> nat -> Set.
 Parameter emptyM : forall X:Set, Matrix X 0.
-Parameter addM : forall (X:Set) (n:nat), Matrix X n -> Matrix X (n+1) -> Matrix X (n+1).
+Parameter addM : forall (X:Set) (n:nat), Array X (n+1) -> Matrix X n -> Matrix X (n+1).
 
-Definition M1 := ... (* matriz de una columna *)
-Definition M2 := ... (* matriz de dos columnas *) 
-Definition M3 := ... (* matriz de tres columnas *)
+Definition A1 := addA nat 0 1 (emptyA nat).
+Definition A2 := addA nat 1 2 (addA nat 0 2 (emptyA nat)).
+Definition A3 := addA nat 2 3 (addA nat 1 3 (addA nat 0 3 (emptyA nat))).
+
+Definition M1 := addM nat 0 A1 (emptyM nat). (* matriz de una columna *)
+Definition M2 := addM nat 1 A2 M1. (* matriz de dos columnas *) 
+Definition M3 := addM nat 2 A3 M2. (* matriz de tres columnas *)
 
 Check M3.
 
@@ -342,12 +346,39 @@ End Ejercicio10.
 
 
 Section Ejercicio11.
-...
+Parameter ABNat : forall n : nat, Set.
+
+Parameter emptyAB : ABNat 0.
+Parameter addAB : forall n: nat, nat -> ABNat n -> ABNat n -> ABNat (n+1).
+
+Definition AB7 := addAB 0 7 emptyAB emptyAB.
+Definition AB11_3 := addAB 1 3 AB7 AB7.
+Check AB11_3.
+
+Parameter ABGen : Set -> nat -> Set.
+Parameter emptyABGen : forall (X:Set), ABGen X 0.
+Parameter addABGen : forall (X:Set) (n:nat), X -> ABGen X n -> ABGen X n -> ABGen X (n+1).
+
 End Ejercicio11.
 
 
 Section Ejercicio12.
-...
+Parameter AVLNat : forall n : nat, Set.
+Parameter emptyAVL : AVLNat 0.
+Parameter addAVL1 : forall (n:nat), nat -> AVLNat n -> AVLNat n -> AVLNat (n+1).
+Parameter addAVL2 : forall (n:nat), nat -> AVLNat (n+1) -> AVLNat n -> AVLNat (n+2).
+Parameter addAVL3 : forall (n:nat), nat -> AVLNat n -> AVLNat (n+1) -> AVLNat (n+2).
+
+Definition AVL1 := addAVL1 0 10 emptyAVL emptyAVL.
+Definition AVL2 := addAVL1 0 30 emptyAVL emptyAVL.
+Definition AVL3 := addAVL1 1 20 AVL1 AVL2.
+Check AVL3.
+
+Parameter AVLGen : forall (X:Set) (n : nat), Set.
+Parameter emptyAVLGen : forall (X:Set), AVLGen X 0.
+Parameter addAVLGen1 : forall (X:Set) (n:nat), X -> AVLGen X n -> AVLGen X n -> AVLGen X (n+1).
+Parameter addAVLGen2 : forall (X:Set) (n:nat), X -> AVLGen X (n+1) -> AVLGen X n -> AVLGen X (n+2).
+Parameter addAVLGen3 : forall (X:Set) (n:nat), X -> AVLGen X n -> AVLGen X (n+1) -> AVLGen X (n+2).
 End Ejercicio12.
 
 
