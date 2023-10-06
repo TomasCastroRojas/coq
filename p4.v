@@ -68,21 +68,15 @@ Section Ejercicio2.
 
 (* 2.1 *)
 Definition Or :=
-  fun b1 b2:bool => match b1 with
-                      true => true
-                    | false => b2
-                    end.
-
-Definition Or2 :=
-  fun b1 b2:bool => match b1 , b2 with
-                      true , _ => true
-                    | false , b2 => b2
+  fun b1 b2:bool => match b1, b2 with
+                      true, _ => true
+                    | false, b2 => b2
                     end.
 
 Definition And :=
-  fun b1 b2:bool => match b1 with
-                      false => false
-                    | true => b2
+  fun b1 b2:bool => match b1, b2 with
+                      false, _ => false
+                    | true, b2 => b2
                     end.
 
 Definition Not :=
@@ -183,23 +177,220 @@ Fixpoint exists_ (A:Set) (P: A -> bool)(l1:list A) :bool :=
       nil _         => false
     | cons _ a rest => match (P a) with
                           false => exists_ _ P rest
-                        | true => true
+                        | true  => true
                        end
   end.
 
 End Ejercicio4.
 
+Section Ejercicio5.
+(* 5.1 *)
+Fixpoint inverse (A:Set) (t: bintree A): bintree A :=
+  match t with
+      empty _      => empty _
+    | node _ a l r => node _ a (inverse _ r) (inverse _ l)
+  end.
+  
+(* 5.2 *)
+(* consultar *)
 
+End Ejercicio5.
 
+Section Ejercicio6.
+Definition ListN := list nat.
 
+(* 6.1 *)
+Fixpoint member (e:nat) (l:ListN) : bool :=
+  match l with
+      nil _         => false
+    | cons _ n rest => match (Nat.eqb n e) with
+                        false => member e rest
+                      | true  => true
+                     end
+  end.
+  
+(* 6.2 *)
+Fixpoint delete (e:nat) (l:ListN) : ListN :=
+  match l with
+      nil _         => nil _
+    | cons _ n rest => match (Nat.eqb n e) with
+                          false => cons _ n (delete e rest)
+                        | true  => rest
+                       end
+  end.
+  
+(* 6.3 *)
+Fixpoint insert_sorted (n:nat) (l':ListN): ListN :=
+      match l' with
+          nil _           => cons _ n (nil _)
+        | cons _ h' rest' => if (leBool n h') then (cons _ n (cons _ h' rest'))
+                                              else (cons _ h' (insert_sorted n rest'))
+      end.
+Fixpoint insert_sort (l:ListN):ListN :=
+  match l with
+      nil _         => nil _
+    | cons _ h rest => insert_sorted h (insert_sort rest)
+  end.
 
+End Ejercicio6.
 
+Section Ejercicio7.
 
+End Ejercicio7.
 
+Section Ejercicio8.
+(* 8.1 *)
+Theorem And_asoc: forall a b: bool, And a b = And b a.
+Proof.
+  intros p q.
+  elim p; elim q; simpl; reflexivity.
+Qed.
 
+Theorem Or_asoc: forall a b: bool, Or a b = Or b a.
+Proof.
+  intros p q.
+  elim p; elim q; simpl; reflexivity.
+Qed.
 
+Theorem And_comm: forall a b c: bool, And a (And b c) = And (And a b) c.
+Proof.
+  intros p q r.
+  elim p; elim q; elim r; simpl; reflexivity.
+Qed.
 
+Theorem Or_comm: forall a b c: bool, Or a (Or b c) = Or (Or a b) c.
+Proof.
+  intros p q r.
+  elim p; elim q; elim r; simpl; reflexivity.
+Qed.
 
+(* 8.2 *)
+Theorem LAnd : forall a b : bool, And a b = true <-> a = true /\ b = true.
+Proof.
+  intros p q.
+  unfold iff.
+  split.
+  - elim p; elim q; simpl.
+    intro t; split; reflexivity.
+    intro ft; split; [reflexivity | exact ft].
+    intro ft; split; [exact ft | reflexivity].
+    intro ft; split; exact ft.
+  - intro and; elim and; intros ptrue qtrue.
+    rewrite ptrue; rewrite qtrue.
+    simpl; reflexivity.
+Qed.
+
+(* 8.3 *)
+Theorem LOr1 : forall a b : bool, Or a b = false <-> a = false /\ b = false.
+Proof.
+  intros p q.
+  unfold iff.
+  split.
+  - elim p; elim q; simpl.
+    intro ft; split; exact ft.
+    intro ft; split; [exact ft | reflexivity].
+    intro ft; split; [reflexivity | exact ft].
+    intro t; split; reflexivity.
+  - intro and; elim and; intros pfalse qfalse.
+    rewrite pfalse; rewrite qfalse.
+    simpl; reflexivity.
+Qed.
+
+(* 8.4 *)
+Theorem LOr2 : forall a b : bool, Or a b = true <-> a = true \/ b = true.
+Proof.
+  intros p q.
+  unfold iff.
+  split.
+  - elim p; simpl; intro H; [left | right]; exact H.
+  - intro or; elim or; intro H; rewrite H; simpl.
+    reflexivity.
+    elim p; simpl; reflexivity.
+Qed.
+
+(* 8.5 *)
+(*
+Theorem LXor : forall a b : bool, Xor a b = true <-> a <> b.
+Proof.     
+Qed.
+*)
+(* 8.6 *)
+Theorem LNot : forall b : bool, Not (Not b) = b.
+Proof.
+  intro p; elim p; simpl; reflexivity.
+Qed.
+End Ejercicio8.
+
+Section Ejercicio9.
+(* 9.1 *)
+Theorem SumO : forall n : nat, sum n 0 = n /\ sum 0 n = n.
+Proof.
+  intro n.
+  elim n.
+  - split; simpl; reflexivity.
+  - intro k.
+    intro and; elim and; intros suml sumr; split; simpl; try (rewrite suml); reflexivity.
+Qed.
+
+(* 9.2 *)
+Theorem SumS : forall n m : nat, sum n (S m) = sum (S n) m.
+Proof.
+  intros n m.
+  elim n.
+  simpl; reflexivity.
+  intros k H.
+  simpl; rewrite H; reflexivity.
+Qed.
+
+(* 9.3 *)
+Theorem SumAsoc : forall n m p : nat, sum n (sum m p) = sum (sum n m) p.
+Proof.
+  intros n m p.
+  elim n.
+  simpl; reflexivity.
+  intros k H.
+  simpl.
+  rewrite H.
+  reflexivity.
+Qed.
+
+(* 9.4 *)
+Theorem SumConm : forall n m : nat, sum n m = sum m n.
+Proof.
+  intros n m.
+  elim n.
+  elim (SumO m).
+  intros sum0l sum0r.
+  simpl.
+  rewrite sum0l.
+  reflexivity.
+  intros k H; simpl.
+  rewrite (SumS m k); simpl.
+  rewrite H; reflexivity.
+Qed.
+
+End Ejercicio9.
+
+Section Ejericio10.
+(* 10.1 *)
+
+Theorem ProdConm : forall n m : nat, prod n m = prod m n.
+Proof.
+
+  induction n; induction m.
+  - reflexivity.
+  - simpl; rewrite <- IHm; reflexivity.
+  - simpl; rewrite IHn; reflexivity.
+  - simpl; rewrite <- IHm.
+    rewrite (IHn (S m)).
+    simpl. rewrite (IHn m).
+    rewrite (SumAsoc m n (prod m n)).
+    rewrite (SumAsoc n m (prod m n)).
+    rewrite (SumConm m n).
+    reflexivity.
+Qed.
+
+End Ejericio10.
 
 
 
