@@ -192,7 +192,7 @@ Fixpoint inverse (A:Set) (t: bintree A): bintree A :=
   end.
   
 (* 5.2 *)
-(* consultar *)
+(* TODO: consultar *)
 
 End Ejercicio5.
 
@@ -231,11 +231,11 @@ Fixpoint insert_sort (l:ListN):ListN :=
       nil _         => nil _
     | cons _ h rest => insert_sorted h (insert_sort rest)
   end.
-
+(* TODO: generalizacion de las funciones *)
 End Ejercicio6.
-
+                                                
 Section Ejercicio7.
-
+(* TODO: Como trabajar Exp *)
 End Ejercicio7.
 
 Section Ejercicio8.
