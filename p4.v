@@ -192,7 +192,29 @@ Fixpoint inverse (A:Set) (t: bintree A): bintree A :=
   end.
   
 (* 5.2 *)
-(* TODO: consultar *)
+Fixpoint nodos_internosG (A:Set) (gt: Gtree A) : nat :=
+  match gt with
+    Gnode _ _ f => 1 + (nodos_internosF _ f)
+  end
+  with
+    nodos_internosF (A:Set) (f: forest A): nat :=
+      match f with
+          empty_forest _     => 0
+        | add_forest _ gt f' => (nodos_internosG _ gt) + (nodos_internosF _ f')
+      end.
+
+Fixpoint nodos_externosG (A:Set) (gt: Gtree A) : nat :=
+  match gt with
+    Gnode _ _ f => (nodos_externosF _ f)
+  end
+  with
+    nodos_externosF (A:Set) (f: forest A): nat :=
+      match f with
+          empty_forest _ => 1
+        | add_forest _ gt f' => (nodos_externosG _ gt) + (nodos_externosF _ f')
+      end.
+
+Definition nodos (A:Set) (gt: Gtree A): bool := (leBool (nodos_internosG _ gt) (nodos_externosG _ gt)).
 
 End Ejercicio5.
 
@@ -231,7 +253,34 @@ Fixpoint insert_sort (l:ListN):ListN :=
       nil _         => nil _
     | cons _ h rest => insert_sorted h (insert_sort rest)
   end.
-(* TODO: generalizacion de las funciones *)
+
+(* Generalizacion de las funciones *)
+Fixpoint memberGen (A:Set) (elem:A) (l: list A) (eq: A -> A -> bool): bool :=
+  match l with
+      nil _         => false
+    | cons _ a rest => if (eq a elem) then true
+                                      else (memberGen _ elem rest eq)
+  end.
+
+Fixpoint deleteGen (A:Set) (elem:A) (l: list A) (eq: A -> A -> bool): list A :=
+  match l with
+      nil _         => nil _
+    | cons _ a rest => if (eq a elem) then rest
+                                      else (cons _ a (deleteGen _ elem rest eq))
+  end.
+
+Fixpoint insert_sortedGen (A:Set) (elem:A) (l:list A) (le: A -> A -> bool): list A :=
+  match l with
+      nil _ => cons _ elem (nil _)
+    | cons _ h rest => if (le elem h) then (cons _ elem (cons _ h rest))
+                                      else (cons _ h (insert_sortedGen _ elem rest le))
+  end.
+
+Fixpoint insert_sortGen (A:Set) (l: list A) (le: A -> A -> bool): list A :=
+  match l with
+      nil _ => nil _
+    | cons _ h rest => (insert_sortedGen _ h (insert_sortGen _ rest le) le)
+  end.
 End Ejercicio6.
                                                 
 Section Ejercicio7.
@@ -242,29 +291,26 @@ Section Ejercicio8.
 (* 8.1 *)
 Theorem And_asoc: forall a b: bool, And a b = And b a.
 Proof.
-  intros p q.
-  elim p; elim q; simpl; reflexivity.
+  induction a;induction b; simpl; reflexivity.
 Qed.
 
 Theorem Or_asoc: forall a b: bool, Or a b = Or b a.
 Proof.
-  intros p q.
-  elim p; elim q; simpl; reflexivity.
+  induction a;induction b; simpl; reflexivity.
 Qed.
 
 Theorem And_comm: forall a b c: bool, And a (And b c) = And (And a b) c.
 Proof.
-  intros p q r.
-  elim p; elim q; elim r; simpl; reflexivity.
+  induction a;induction b; induction c; simpl; reflexivity.
 Qed.
 
 Theorem Or_comm: forall a b c: bool, Or a (Or b c) = Or (Or a b) c.
 Proof.
-  intros p q r.
-  elim p; elim q; elim r; simpl; reflexivity.
+  induction a;induction b; induction c; simpl; reflexivity.
 Qed.
 
 (* 8.2 *)
+
 Theorem LAnd : forall a b : bool, And a b = true <-> a = true /\ b = true.
 Proof.
   intros p q.
@@ -309,15 +355,24 @@ Proof.
 Qed.
 
 (* 8.5 *)
-(*
+
 Theorem LXor : forall a b : bool, Xor a b = true <-> a <> b.
-Proof.     
+Proof.
+  intros p q.
+  unfold iff.
+  split.
+  - elim p; elim q; simpl; intro; unfold not.
+    discriminate.
+    intro; discriminate.
+    intro; discriminate.
+    discriminate.
+  - elim p; elim q; intro; simpl; try reflexivity; elim H; reflexivity.
 Qed.
-*)
+
 (* 8.6 *)
 Theorem LNot : forall b : bool, Not (Not b) = b.
 Proof.
-  intro p; elim p; simpl; reflexivity.
+  induction b; simpl; reflexivity.
 Qed.
 End Ejercicio8.
 
@@ -325,48 +380,46 @@ Section Ejercicio9.
 (* 9.1 *)
 Theorem SumO : forall n : nat, sum n 0 = n /\ sum 0 n = n.
 Proof.
-  intro n.
-  elim n.
+  induction n.
   - split; simpl; reflexivity.
-  - intro k.
-    intro and; elim and; intros suml sumr; split; simpl; try (rewrite suml); reflexivity.
+  - split; elim IHn; intros sum0l sum0r; simpl; try (rewrite sum0l); reflexivity.
 Qed.
 
 (* 9.2 *)
 Theorem SumS : forall n m : nat, sum n (S m) = sum (S n) m.
 Proof.
-  intros n m.
-  elim n.
-  simpl; reflexivity.
-  intros k H.
-  simpl; rewrite H; reflexivity.
+  induction n.
+  - intro m; simpl; reflexivity.
+  - intro m; simpl; rewrite (IHn m); reflexivity.
 Qed.
 
 (* 9.3 *)
 Theorem SumAsoc : forall n m p : nat, sum n (sum m p) = sum (sum n m) p.
 Proof.
-  intros n m p.
-  elim n.
-  simpl; reflexivity.
-  intros k H.
-  simpl.
-  rewrite H.
-  reflexivity.
+  induction n.
+  - intros m p; simpl; reflexivity.
+  - intros m p.
+    simpl.
+    rewrite (IHn m p).
+    reflexivity.
 Qed.
 
 (* 9.4 *)
 Theorem SumConm : forall n m : nat, sum n m = sum m n.
 Proof.
-  intros n m.
-  elim n.
-  elim (SumO m).
-  intros sum0l sum0r.
-  simpl.
-  rewrite sum0l.
-  reflexivity.
-  intros k H; simpl.
-  rewrite (SumS m k); simpl.
-  rewrite H; reflexivity.
+  induction n.
+  - intro m.
+    elim (SumO m).
+    intros sum0l sum0r.
+    simpl.
+    rewrite sum0l.
+    reflexivity.
+  - intro m.
+    simpl.
+    rewrite (SumS m n).
+    simpl.
+    rewrite (IHn m).
+    reflexivity.
 Qed.
 
 End Ejercicio9.
@@ -376,7 +429,6 @@ Section Ejericio10.
 
 Theorem ProdConm : forall n m : nat, prod n m = prod m n.
 Proof.
-
   induction n; induction m.
   - reflexivity.
   - simpl; rewrite <- IHm; reflexivity.
