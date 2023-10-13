@@ -289,29 +289,29 @@ End Ejercicio7.
 
 Section Ejercicio8.
 (* 8.1 *)
-Theorem And_asoc: forall a b: bool, And a b = And b a.
+Lemma And_asoc: forall a b: bool, And a b = And b a.
 Proof.
   induction a;induction b; simpl; reflexivity.
 Qed.
 
-Theorem Or_asoc: forall a b: bool, Or a b = Or b a.
+Lemma Or_asoc: forall a b: bool, Or a b = Or b a.
 Proof.
   induction a;induction b; simpl; reflexivity.
 Qed.
 
-Theorem And_comm: forall a b c: bool, And a (And b c) = And (And a b) c.
+Lemma And_comm: forall a b c: bool, And a (And b c) = And (And a b) c.
 Proof.
   induction a;induction b; induction c; simpl; reflexivity.
 Qed.
 
-Theorem Or_comm: forall a b c: bool, Or a (Or b c) = Or (Or a b) c.
+Lemma Or_comm: forall a b c: bool, Or a (Or b c) = Or (Or a b) c.
 Proof.
   induction a;induction b; induction c; simpl; reflexivity.
 Qed.
 
 (* 8.2 *)
 
-Theorem LAnd : forall a b : bool, And a b = true <-> a = true /\ b = true.
+Lemma LAnd : forall a b : bool, And a b = true <-> a = true /\ b = true.
 Proof.
   intros p q.
   unfold iff.
@@ -327,7 +327,7 @@ Proof.
 Qed.
 
 (* 8.3 *)
-Theorem LOr1 : forall a b : bool, Or a b = false <-> a = false /\ b = false.
+Lemma LOr1 : forall a b : bool, Or a b = false <-> a = false /\ b = false.
 Proof.
   intros p q.
   unfold iff.
@@ -343,7 +343,7 @@ Proof.
 Qed.
 
 (* 8.4 *)
-Theorem LOr2 : forall a b : bool, Or a b = true <-> a = true \/ b = true.
+Lemma LOr2 : forall a b : bool, Or a b = true <-> a = true \/ b = true.
 Proof.
   intros p q.
   unfold iff.
@@ -356,7 +356,7 @@ Qed.
 
 (* 8.5 *)
 
-Theorem LXor : forall a b : bool, Xor a b = true <-> a <> b.
+Lemma LXor : forall a b : bool, Xor a b = true <-> a <> b.
 Proof.
   intros p q.
   unfold iff.
@@ -370,7 +370,7 @@ Proof.
 Qed.
 
 (* 8.6 *)
-Theorem LNot : forall b : bool, Not (Not b) = b.
+Lemma LNot : forall b : bool, Not (Not b) = b.
 Proof.
   induction b; simpl; reflexivity.
 Qed.
@@ -378,7 +378,7 @@ End Ejercicio8.
 
 Section Ejercicio9.
 (* 9.1 *)
-Theorem SumO : forall n : nat, sum n 0 = n /\ sum 0 n = n.
+Lemma SumO : forall n : nat, sum n 0 = n /\ sum 0 n = n.
 Proof.
   induction n.
   - split; simpl; reflexivity.
@@ -386,7 +386,7 @@ Proof.
 Qed.
 
 (* 9.2 *)
-Theorem SumS : forall n m : nat, sum n (S m) = sum (S n) m.
+Lemma SumS : forall n m : nat, sum n (S m) = sum (S n) m.
 Proof.
   induction n.
   - intro m; simpl; reflexivity.
@@ -394,7 +394,7 @@ Proof.
 Qed.
 
 (* 9.3 *)
-Theorem SumAsoc : forall n m p : nat, sum n (sum m p) = sum (sum n m) p.
+Lemma SumAsoc : forall n m p : nat, sum n (sum m p) = sum (sum n m) p.
 Proof.
   induction n.
   - intros m p; simpl; reflexivity.
@@ -405,7 +405,7 @@ Proof.
 Qed.
 
 (* 9.4 *)
-Theorem SumConm : forall n m : nat, sum n m = sum m n.
+Lemma SumConm : forall n m : nat, sum n m = sum m n.
 Proof.
   induction n.
   - intro m.
@@ -425,9 +425,9 @@ Qed.
 End Ejercicio9.
 
 Section Ejericio10.
-(* 10.1 *)
 
-Theorem ProdConm : forall n m : nat, prod n m = prod m n.
+(* 10.1 *)
+Lemma ProdConm : forall n m : nat, prod n m = prod m n.
 Proof.
   induction n; induction m.
   - reflexivity.
@@ -442,8 +442,50 @@ Proof.
     reflexivity.
 Qed.
 
-End Ejericio10.
+(* 10.2 *)
+Lemma ProdDisrt_R: forall n m p:nat, prod (sum n m) p = sum (prod n p) (prod m p).
+Proof.
+  induction n.
+  intros m p.
+  - simpl.
+    reflexivity.
+  - intros m p.
+    simpl.
+    rewrite (IHn m p).
+    rewrite (SumAsoc p (prod n p) (prod m p)).
+    reflexivity.
+Qed.
 
+Lemma ProdAsoc: forall n m p: nat, prod n (prod m p) = prod (prod n m) p.
+Proof.
+  induction n.
+  - intros m p.
+    reflexivity.
+  - intros m p.
+    simpl.
+    rewrite (ProdDisrt_R m (prod n m) p).
+    rewrite (IHn m p).
+    reflexivity.
+Qed.
+
+(* 10.3 *)
+Lemma ProdDistr: forall n m p: nat, prod n (sum m p) = sum (prod n m) (prod n p).
+Proof.
+  induction n.
+  - intros m p.
+    reflexivity.
+  - intros m p.
+    simpl.
+    rewrite (IHn m p).
+    rewrite <- (SumAsoc m p (sum (prod n m) (prod n p))).
+    rewrite (SumAsoc p (prod n m) (prod n p)).
+    rewrite (SumConm p (prod n m)).
+    rewrite <- (SumAsoc (prod n m) p (prod n p)).
+    rewrite (SumAsoc m (prod n m) (sum p (prod n p))).
+    reflexivity.
+Qed.
+
+End Ejericio10.
 
 
 
