@@ -751,6 +751,33 @@ Admitted.
 End Ejercicio17.
 
 Section Ejercicio20.
+(* 20.1 *)
+Inductive ACom (A:Set):nat -> Set :=
+  | leaf : A -> ACom A 0
+  | addACom : forall (n:nat), A -> ACom A n -> ACom A n -> ACom A (S n).
+
+(* 20.2 *)  
+Fixpoint h (A:Set) (n:nat) (t:ACom A n): nat :=
+  match t with
+    | leaf _ _ => 1
+    | addACom _ m _ l r => sum (h A m l) (h A m r)
+  end.
+
+(* 20.3 *)
+Axiom potO : forall n : nat, pot (S n) 0 = 1.
+Axiom potS : forall m: nat, pot 2 (S m) = sum (pot 2 m) (pot 2 m).
+
+Lemma nodesACom : forall (A:Set) (n: nat) (t: ACom A n), h A n t = pot 2 n.
+Proof.
+  intros A n.
+  induction t.
+  - simpl; reflexivity.
+  - simpl.
+    rewrite (SumConm (pot 2 n) 0).
+    simpl.
+    rewrite IHt1; rewrite IHt2.
+    reflexivity.
+Qed.
 End Ejercicio20.
 
 
