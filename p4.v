@@ -10,7 +10,6 @@ Inductive bintree (A:Set):Set :=
   | node : A -> bintree A -> bintree A -> bintree A.
 
 (* 1.2 *)
-
 Inductive array (A:Set): nat -> Set :=
   | emptyArray : array A 0
   | addArray : forall (n:nat), A -> array A n -> array A (S n).
@@ -20,7 +19,6 @@ Inductive matrix (A:Set): nat -> nat -> Set :=
   | extend_col : forall (m n:nat), array A n -> matrix A m n -> matrix A (S m) n.
 
 (* 1.3 *)
-
 Inductive leq : nat -> nat -> Prop :=
   | leq0 : forall n:nat, leq n n
   | leqS : forall n m:nat, leq n m -> leq n (S m).
@@ -184,6 +182,7 @@ Fixpoint exists_ (A:Set) (P: A -> bool)(l1:list A) :bool :=
 End Ejercicio4.
 
 Section Ejercicio5.
+
 (* 5.1 *)
 Fixpoint inverse (A:Set) (t: bintree A): bintree A :=
   match t with
@@ -658,8 +657,111 @@ End Ejercicio13.
 
 Section Ejercicio14.
 Lemma inverse_is_mirror: forall (A:Set) (t:bintree A), mirror A (inverse A t) t.
+Proof.
+  intro A.
+  induction t.
+  - simpl.
+    constructor.
+  - simpl.
+    constructor.
+    exact IHt2.
+    exact IHt1.
+Qed.
 
 End Ejercicio14.
+
+Section Ejercicio15.
+End Ejercicio15.
+
+Section Ejercicio16.
+End Ejercicio16.
+
+Section Ejercicio17.
+(* 17.1 *)
+Inductive posfijo (A:Set) : list A -> list A -> Prop :=
+  | posfijo0 : forall l1, posfijo A l1 l1
+  | posfijoS : forall (l1 l2: list A) (a:A), posfijo A l1 l2 -> posfijo A l1 (cons A a l2).
+
+(* 17.2 *)
+Lemma LPosfijo1: forall (A:Set) (l1 l2 l3:list A), l2 = append A l3 l1 -> posfijo A l1 l2.
+Proof.
+  intros A l1 l2 l3 H.
+  rewrite H; clear H.
+  induction l3.
+  - simpl.
+    constructor.
+  - simpl.
+    constructor.
+    exact IHl3.
+Qed.
+
+Lemma LPosfijo2: forall (A:Set) (l1 l2:list A), posfijo A l1 l2 -> exists (l3: list A), l2 = append A l3 l1.
+Proof.
+  intros A l1 l2 H.
+  elim H.
+  - intro l.
+    exists (nil A).
+    reflexivity.
+  - intros l3 l4 a.
+    intros H1 H2.
+    elim H2.
+    intro l0.
+    intro H3.
+    exists (cons A a l0).
+    simpl.
+    rewrite H3.
+    reflexivity.
+Qed.
+
+Lemma LPosfijo3: forall (A:Set) (l1 l2:list A), posfijo A l2 (append A l1 l2).
+Proof.
+  intro A.
+  induction l1.
+  - intro l2.
+    simpl.
+    constructor.
+  - intro l2.
+    simpl.
+    constructor.
+    exact (IHl1 l2).
+Qed.
+
+(* 17.3 *)
+Fixpoint ultimo (A:Set) (l:list A): list A :=
+  match l with
+    | nil _ => nil A
+    | cons _ a rest => match rest with
+                         | nil _ => cons A a (nil A)
+                         | cons _ _ rest' => ultimo A rest'
+                       end
+  end.
+  
+Lemma LPosfijo4: forall (A:Set) (l:list A), posfijo A (ultimo A l) l.
+Proof.
+  intro A.
+  induction l.
+  - simpl.
+    constructor.
+  - destruct l.
+    simpl; constructor.
+    (* TODO: completar caso inductivo *)
+Admitted.
+
+
+End Ejercicio17.
+
+Section Ejercicio20.
+End Ejercicio20.
+
+
+
+
+
+
+
+
+
+
 
 
 
