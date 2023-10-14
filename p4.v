@@ -487,10 +487,179 @@ Qed.
 
 End Ejericio10.
 
+Section Ejercicio11.
+
+(* 11.1 *)
+Lemma L1: forall (A:Set) (l: list A), append A l (nil A) = l.
+Proof.
+  intro A.
+  induction l.
+  - simpl; reflexivity.
+  - simpl.
+    rewrite IHl.
+    reflexivity.
+Qed.
+
+(* 11.2 *)
+Lemma L2: forall (A : Set) (l : list A) (a : A), ~(cons A a l) = nil A.
+Proof.
+  intro A.
+  induction l.
+  - intro a.
+    unfold not.
+    intro; discriminate.
+  - intro a'.
+    unfold not.
+    intro H.
+    discriminate.
+Qed.
+(* 11.3 *)
+Lemma L3 : forall (A : Set) (l m : list A) (a : A),
+                            cons A a (append A l m) = append A (cons A a l) m.
+Proof.
+  intro A.
+  induction l.
+  - intros m a.
+    simpl.
+    reflexivity.
+  - intros m a'.
+    simpl.
+    rewrite (IHl m a).
+    reflexivity.
+Qed.
+(* 11.4 *)
+Lemma L4 : forall (A : Set) (l m : list A),
+                            length A (append A l m) = sum (length A l) (length A m).
+Proof.
+  intro A.
+  induction l.
+  - intro m.
+    simpl.
+    reflexivity.
+  - intro m.
+    simpl.
+    rewrite (IHl m).
+    reflexivity.
+Qed.
+(* 11.5 *)
+Lemma L5 : forall (A : Set) (l : list A), length A (reverse A l) = length A l.
+Proof.
+  intro A.
+  induction l.
+  - simpl.
+    reflexivity.
+  - simpl.
+    rewrite (L4 A (reverse A l) (cons A a (nil A))).
+    rewrite IHl.
+    simpl.
+    rewrite (SumConm (length A l) 1).
+    simpl.
+    reflexivity.
+Qed.
+End Ejercicio11.
+
+Section Ejercicio12.
+
+(* 12.1 *)
+Lemma L7 : forall (A B : Set) (l m : list A) (f : A -> B),
+map A B f (append A l m) = append B (map A B f l) (map A B f m).
+Proof.
+  intros A B.
+  induction l.
+  - intros m f.
+    simpl.
+    reflexivity.
+  - intros m f.
+    simpl.
+    rewrite (IHl m f).
+    reflexivity.
+Qed.
+(* 12.2 *)
+Lemma L8 : forall (A : Set) (l m : list A) (P : A -> bool),
+filter A P (append A l m) = append A (filter A P l) (filter A P m).
+Proof.
+  intro A.
+  induction l.
+  - intros m P.
+    simpl.
+    reflexivity.
+  - intros m P.
+    simpl.
+    rewrite (IHl m P).
+    case (P a).
+    simpl.
+    reflexivity.
+    reflexivity.
+Qed.
+
+(* 12.3 *)
+Lemma L9 : forall (A : Set) (l : list A) (P : A -> bool),
+filter A P (filter A P l) = filter A P l.
+Proof.
+  intro A.
+  induction l.
+  - intro P.
+    simpl.
+    reflexivity.
+  - intro P.
+    simpl.
+    case_eq (P a).
+    intro Pa.
+    simpl.
+    rewrite Pa.
+    rewrite (IHl P).
+    reflexivity.
+    intro notPa.
+    rewrite (IHl P).
+    reflexivity.
+Qed.
+
+(* 12.4 *)
+Lemma L10 : forall (A : Set) (l m n : list A),
+append A l (append A m n) = append A (append A l m) n.
+Proof.
+  intro A.
+  induction l.
+  - intros m n.
+    simpl.
+    reflexivity.
+  - intros m n.
+    simpl.
+    rewrite (IHl m n).
+    reflexivity.
+Qed.
+
+End Ejercicio12.
+
+Section Ejercicio13.
+Fixpoint filterMap (A B : Set) (P : B -> bool) (f : A -> B)
+(l : list A) {struct l} : list B :=
+  match l with
+   | nil _ => nil B
+   | cons _ a l1 =>
+     match P (f a) with
+       | true => cons B (f a) (filterMap A B P f l1)
+       | false => filterMap A B P f l1
+     end
+  end.
+
+Lemma FusionFilterMap : forall (A B : Set) (P : B -> bool) (f : A -> B) (l : list A),
+                          filter B P (map A B f l) = filterMap A B P f l.
+Proof.
+  intros A B P f.
+  induction l.
+  - simpl.
+    reflexivity.
+  - simpl.
+    case (P (f a)); rewrite IHl; reflexivity.
+Qed.
+End Ejercicio13.
 
 
+Section Ejercicio14.
+Lemma inverse_is_mirror: forall (A:Set) (t:bintree A), mirror A (inverse A t) t.
 
-
+End Ejercicio14.
 
 
 
