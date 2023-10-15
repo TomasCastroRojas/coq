@@ -808,8 +808,8 @@ Inductive AB (A:Set) : nat -> Set :=
 Fixpoint camino (A:Set) (n:nat) (t: AB A n): list A :=
   match t with
     | emptyAB _ => nil A
-    | forkAB _ h1 h2 a l r => if (h1 <=? h2) then cons A a (camino A h2 r)
-                                             else cons A a (camino A h1 l)
+    | forkAB _ h1 h2 a l r => if (h2 <=? h1) then cons A a (camino A h1 l)
+                                             else cons A a (camino A h2 r)
   end.
 
 Lemma LCamino: forall (A:Set) (n:nat) (t: AB A n), (length A (camino A n t)) = n.
@@ -818,21 +818,21 @@ Proof.
   induction t.
   - simpl; reflexivity.
   - simpl.
-    case_eq (Nat.leb h1 h2).
+    case_eq (Nat.leb h2 h1).
     (* h1 <= h2 *)
-      rewrite (Nat.leb_le h1 h2).
-      intro H1.
-      simpl.
-      rewrite IHt2.
-      rewrite (Nat.max_r h1 h2).
-      reflexivity.
-      exact H1.
-    (* h2 <= h1 *)
-      rewrite (leb_iff_conv h2 h1).
+      rewrite (Nat.leb_le h2 h1).
       intro H1.
       simpl.
       rewrite IHt1.
       rewrite (Nat.max_l h1 h2).
+      reflexivity.
+      exact H1.
+    (* h2 <= h1 *)
+      rewrite (leb_iff_conv h1 h2).
+      intro H1.
+      simpl.
+      rewrite IHt2.
+      rewrite (Nat.max_r h1 h2).
       reflexivity.
       lia.
 Qed.
