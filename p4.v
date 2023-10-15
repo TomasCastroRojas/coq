@@ -789,14 +789,9 @@ Proof.
     rewrite IHt1; rewrite IHt2.
     reflexivity.
 Qed.
-
-Lemma nodesACom2 : forall (A:Set) (n: nat) (t: ACom A n), h A n t = pot 2 n.
-Proof.
-  intros A n t.
-  induction n.
-  - simpl.
-
-Qed.
+(* TODO: deberia ser con induccion en la altura. No encuentro la manera de reemplazar
+         ACom A 0 -> leaf A a para algun a y asi simplificar la funcion h
+*)
 
 End Ejercicio20.
 
@@ -804,6 +799,7 @@ End Ejercicio20.
 Section Ejercicio21.
 Require Import Arith.PeanoNat.
 Require Import Arith.Compare_dec.
+Require Import Lia.
 
 Inductive AB (A:Set) : nat -> Set :=
   | emptyAB : AB A 0
