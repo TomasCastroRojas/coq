@@ -732,10 +732,20 @@ Fixpoint ultimo (A:Set) (l:list A): list A :=
     | nil _ => nil A
     | cons _ a rest => match rest with
                          | nil _ => cons A a (nil A)
-                         | cons _ _ rest' => ultimo A rest'
+                         | cons _ _ rest' => ultimo A rest
                        end
   end.
-  
+
+
+Lemma LUltimo_aux: forall (A:Set) (l:list A) (a a':A),
+                       ultimo A (cons A a (cons A a' l)) = ultimo A (cons A a' l).
+Proof.
+  intros.
+  induction l.
+  - simpl; reflexivity.
+  - simpl.
+    reflexivity.
+Qed.
 Lemma LPosfijo4: forall (A:Set) (l:list A), posfijo A (ultimo A l) l.
 Proof.
   intro A.
@@ -744,9 +754,10 @@ Proof.
     constructor.
   - destruct l.
     simpl; constructor.
-    (* TODO: completar caso inductivo *)
-Admitted.
-
+    rewrite (LUltimo_aux A l a a0).
+    constructor.
+    exact IHl.
+Qed.
 
 End Ejercicio17.
 
@@ -779,6 +790,14 @@ Proof.
     reflexivity.
 Qed.
 
+Lemma nodesACom2 : forall (A:Set) (n: nat) (t: ACom A n), h A n t = pot 2 n.
+Proof.
+  intros A n t.
+  induction n.
+  - simpl.
+
+Qed.
+
 End Ejercicio20.
 
 
@@ -794,7 +813,7 @@ Fixpoint camino (A:Set) (n:nat) (t: AB A n): list A :=
   match t with
     | emptyAB _ => nil A
     | forkAB _ h1 h2 a l r => if (h1 <=? h2) then cons A a (camino A h2 r)
-                                                 else cons A a (camino A h1 l)
+                                             else cons A a (camino A h1 l)
   end.
 
 Lemma LCamino: forall (A:Set) (n:nat) (t: AB A n), (length A (camino A n t)) = n.
