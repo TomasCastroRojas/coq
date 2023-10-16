@@ -819,7 +819,7 @@ Proof.
   - simpl; reflexivity.
   - simpl.
     case_eq (Nat.leb h2 h1).
-    (* h1 <= h2 *)
+    (* h2 <= h1 *)
       rewrite (Nat.leb_le h2 h1).
       intro H1.
       simpl.
@@ -827,7 +827,7 @@ Proof.
       rewrite (Nat.max_l h1 h2).
       reflexivity.
       exact H1.
-    (* h2 <= h1 *)
+    (* h1 <= h2 *)
       rewrite (leb_iff_conv h1 h2).
       intro H1.
       simpl.
