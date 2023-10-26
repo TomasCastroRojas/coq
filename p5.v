@@ -180,6 +180,142 @@ Qed.
 End Ejercicio2.
 
 
+Section Ejercicio3.
+Variable A : Set.
+Parameter equal : A -> A -> bool.
+Axiom equal1 : forall x y : A, equal x y = true -> x = y.
+Axiom equal2 : forall x : A, equal x x <> false.
+Inductive List : Set :=
+ | nullL : List
+ | consL : A -> List -> List.
+Inductive MemL (a : A) : List -> Prop :=
+ | hereL : forall x : List, MemL a (consL a x)
+ | thereL : forall x : List, MemL a x -> forall b : A, MemL a (consL b x).
+
+(* 3.1 *)
+Inductive isSet : List -> Prop :=
+  | emptySet : isSet nullL
+  | consSet : forall (a:A) (l:List), isSet l -> ~ (MemL a l) -> isSet (consL a l).
+  
+(* 3.2 *)
+Fixpoint deleteAll (x: A) (l:List) : List :=
+  match l with
+    | nullL => nullL
+    | consL h rest => if equal x h then deleteAll x rest
+                                   else consL h (deleteAll x rest)
+  end.
+
+(* 3.3 *)
+Lemma DeleteAllNotMember : forall (l : List) (x : A), ~ MemL x (deleteAll x l).
+Proof.
+  intros.
+  unfold not.
+  induction l.
+  - simpl.
+    intro H.
+    inversion H.
+  - simpl.
+    case_eq (equal x a).
+    -- intro.
+       exact IHl.
+    -- intros.
+       inversion H0.
+       rewrite H2 in H.
+       apply (equal2 a).
+       exact H.
+       apply IHl.
+       exact H2.
+Qed.
+
+(* 3.4 *)
+Fixpoint delete (x: A) (l:List) : List :=
+  match l with
+    | nullL => nullL
+    | consL h rest => if equal x h then rest
+                                   else consL h (delete x rest)
+  end.
+
+(* 3.5 *)
+Lemma DeleteNotMember : forall (l : List) (x : A), isSet l -> ~ MemL x (delete x l).
+Proof.
+  intros.
+  induction l; unfold not; simpl.
+  - intro H1.
+    inversion H1.
+  - case_eq (equal x a).
+    -- intros EQ H1.
+       apply IHl.
+       inversion H.
+       assumption.
+       apply (equal1 x a) in EQ.
+       rewrite <- EQ in H.
+       inversion H.
+       absurd (MemL x l); assumption.
+    -- intros NEQ H1.
+       inversion H.
+       inversion H1.
+       rewrite H6 in NEQ.
+       apply (equal2 a); assumption.
+       apply IHl.
+       exact H3.
+       exact H6.
+Qed.
+End Ejercicio3.
+
+Section Ejercicio4.
+Variable A : Set.
+
+Inductive AB: Set :=
+   nullAB : AB
+ | consAB : A -> AB-> AB -> AB.
+
+(* 4.1 *)
+Inductive Pertenece (a:A): AB -> Prop :=
+  | rootAB : forall (t1 t2: AB), Pertenece a (consAB a t1 t2)
+  | treeAB : forall (t1 t2: AB) (b:A), Pertenece a t1 \/ Pertenece a t2 -> Pertenece a (consAB b t1 t2).
+  
+(* 4.2 *)
+Parameter eqGen: A->A->bool.
+Fixpoint Borrar (x:A) (t:AB): AB :=
+  match t with
+    | nullAB       => nullAB
+    | consAB a l r => if eqGen x a then nullAB
+                                   else consAB a (Borrar x l) (Borrar x r)
+  end.
+
+(* 4.3 *)
+Axiom eqGen1: forall (x:A), ~(eqGen x x) = false.
+Lemma BorrarNoPertenece: forall (x:AB) (a:A), ~(Pertenece a (Borrar a x)).
+Proof.
+  induction x; intro; simpl; unfold not.
+  - intro H.
+    inversion H.
+  - case_eq (eqGen a0 a).
+    -- intros EQ H.
+       inversion H.
+    -- intros NEQ H.
+       inversion H.
+       rewrite H1 in NEQ.
+       apply (eqGen1 a); assumption.
+       elim H1.
+       --- apply (IHx1 a0).
+       --- apply (IHx2 a0).
+Qed.
+
+(* 4.4 *)
+Inductive SinRepetidos: AB -> Prop :=
+ | emptyAB: SinRepetidos nullAB
+ | nodeAB: forall (t1 t2:AB) (a:A), SinRepetidos t1 -> SinRepetidos t2 
+                                      -> SinRepetidos (consAB a t1 t2).
+End Ejercicio4.
+
+
+
+
+
+
+
+
 
 
 
