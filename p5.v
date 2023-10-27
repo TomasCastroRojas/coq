@@ -309,7 +309,46 @@ Inductive SinRepetidos: AB -> Prop :=
                                       -> SinRepetidos (consAB a t1 t2).
 End Ejercicio4.
 
+Section Ejercicio5.
+(* 5.1 *)
+Definition Var := nat.
 
+Inductive BoolExpr:Set :=
+  | BEVar: Var -> BoolExpr
+  | BEBool: bool -> BoolExpr
+  | BEAnd: BoolExpr -> BoolExpr -> BoolExpr
+  | BENeg: BoolExpr -> BoolExpr.
+  
+(* 5.2 *)
+Definition Valor := bool.
+Definition Memoria := nat -> Valor.
+Definition lookup (m:Memoria) (v:Var) := m v.
+
+Inductive BEval : BoolExpr -> Memoria -> Valor -> Prop :=
+  | EVar : forall (v:Var) (mem:Memoria), BEval (BEVar v) mem (lookup mem v)
+  | Eboolt: forall (mem:Memoria), BEval (BEBool true) mem true
+  | Eboolf: forall (mem:Memoria), BEval (BEBool false) mem false
+  | Eandl: forall (e1 e2: BoolExpr) (mem:Memoria), BEval e1 mem false -> BEval (BEAnd e1 e2) mem false
+  | Eandr: forall (e1 e2: BoolExpr) (mem:Memoria), BEval e2 mem false -> BEval (BEAnd e1 e2) mem false
+  | Eandrl: forall (e1 e2: BoolExpr) (mem:Memoria), BEval e1 mem true -> BEval e2 mem true -> BEval (BEAnd e1 e2) mem true
+  | Enott: forall (e: BoolExpr) (mem:Memoria), BEval e mem true -> BEval (BENeg e) mem false
+  | Enotf: forall (e: BoolExpr) (mem:Memoria), BEval e mem false -> BEval (BENeg e) mem true.
+
+(* 5.3 *)
+(* TODO: 5.3.a *)
+Lemma LEand1: forall (mem:Memoria) (e1 e2: BoolExpr) (w: Valor),
+                 BEval e1 mem true -> BEval e2 mem w -> BEval (BEAnd e1 e2) mem w.
+Proof.
+  intros.
+  case_eq w.
+  - intro wtrue.
+    rewrite wtrue in H0.
+    apply (Eandrl e1 e2 mem); assumption.
+  - intro wfalse.
+    rewrite wfalse in H0.
+    apply (Eandr e1 e2 mem); assumption.
+Qed.
+End Ejercicio5.
 
 
 
