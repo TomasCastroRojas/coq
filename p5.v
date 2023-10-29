@@ -335,7 +335,9 @@ Inductive BEval : BoolExpr -> Memoria -> Valor -> Prop :=
   | Enotf: forall (e: BoolExpr) (mem:Memoria), BEval e mem false -> BEval (BENeg e) mem true.
 
 (* 5.3 *)
+
 (* TODO: 5.3.a *)
+
 Lemma LEand1: forall (mem:Memoria) (e1 e2: BoolExpr) (w: Valor),
                  BEval e1 mem true -> BEval e2 mem w -> BEval (BEAnd e1 e2) mem w.
 Proof.
@@ -347,6 +349,89 @@ Proof.
   - intro wfalse.
     rewrite wfalse in H0.
     apply (Eandr e1 e2 mem); assumption.
+Qed.
+
+Lemma unicidad: forall (mem: Memoria) (e: BoolExpr)  (w1 w2: Valor),
+                  BEval e mem w1 -> BEval e mem w2 -> w1 = w2.
+Proof.
+  intros; induction e.
+  - inversion H.
+    inversion H0.
+    reflexivity.
+  - inversion H; inversion H0.
+    -- reflexivity.
+    -- rewrite <- H5 in H2.
+       discriminate.
+    -- rewrite <- H5 in H2.
+       discriminate.
+    -- reflexivity.
+  - inversion_clear H in IHe1 IHe2; inversion_clear H0 in IHe1 IHe2; auto.
+  - inversion H in IHe; inversion H0 in IHe; auto.
+Qed.
+
+Lemma correctitud: forall (mem:Memoria) (e1 e2: BoolExpr), BEval e1 mem false -> BEval (BENeg (BEAnd e1 e2)) mem true.
+Proof.
+  intro mem; induction e1; intros.
+  - apply (Enotf (BEAnd (BEVar v) e2) mem).
+    apply (Eandl (BEVar v) e2 mem).
+    exact H.
+  - apply (Enotf (BEAnd (BEBool b) e2) mem).
+    apply (Eandl (BEBool b) e2 mem).
+    exact H.
+  - apply (Enotf (BEAnd (BEAnd e1_1 e1_2) e2) mem).
+    apply (Eandl (BEAnd e1_1 e1_2) e2 mem).
+    exact H.
+  - apply (Enotf (BEAnd (BENeg e1) e2) mem).
+    apply (Eandl (BENeg e1) e2 mem).
+    exact H.
+Qed.
+
+(* 5.4 *)
+Fixpoint beval (mem:Memoria) (e:BoolExpr): Valor :=
+  match e with
+    | BEVar v => lookup mem v
+    | BEBool b => b
+    | BEAnd e1 e2 => match beval mem e1 with
+                      | false => false
+                      | true => beval mem e2
+                     end
+    | BENeg e0 => match beval mem e0 with
+                    | false => true
+                    | true => false
+                  end
+  end.
+  
+(* 5.5 *)
+Theorem bigstep_equal_smallstep: forall (mem: Memoria) (e: BoolExpr), BEval e mem (beval mem e).
+Proof.
+  intros.
+  induction e.
+  - simpl.
+    constructor.
+  - simpl.
+    case b; constructor.
+  - simpl.
+    case_eq (beval mem e1); case_eq (beval mem e2).
+    -- intros.
+       constructor.
+       rewrite H0 in IHe1.
+       exact IHe1.
+       rewrite H in IHe2.
+       exact IHe2.
+    -- intros.
+       apply (Eandr e1 e2 mem).
+       rewrite H in IHe2.
+       exact IHe2.
+    -- intros.
+       constructor.
+       rewrite H0 in IHe1.
+       exact IHe1.
+    -- intros.
+       constructor.
+       rewrite H0 in IHe1.
+       exact IHe1.
+  - simpl.
+    case_eq (beval mem e); intro H; constructor; rewrite H in IHe; exact IHe.
 Qed.
 End Ejercicio5.
 
