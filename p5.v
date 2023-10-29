@@ -436,7 +436,62 @@ Qed.
 End Ejercicio5.
 
 
+Section Ejercicio6.
 
+(* 6.1 *)
+Inductive Instr :=
+  | Skip: Instr
+  | Assign: Var -> BoolExpr -> Instr
+  | IfThenElse: BoolExpr -> Instr -> Instr -> Instr
+  | WhileDo: BoolExpr -> Instr -> Instr
+  | Repeat: nat -> Instr -> Instr
+  | BeginEnd: LInstr -> Instr
+  with
+  LInstr :=
+    | nillLI: LInstr
+    | consLI : Instr -> LInstr -> LInstr.
+
+(* 6.2 *)
+Infix "::" := consLI (at level 60, right associativity).
+
+(* 6.2.a *)
+Variables v1 v2: Var.
+Definition PP := BeginEnd ((Assign v1 (BEBool true))::(Assign v2 (BENeg (BEVar v1)))::nillLI).
+
+(* 6.2.b *)
+Variables v3 v4 aux: Var.
+Definition Swap := BeginEnd ((Assign aux (BEVar v1))::(Assign v1 (BEVar v2)):: (Assign v2 (BEVar aux))::nillLI).
+
+(* 6.3 *)
+Require Import Coq.Arith.EqNat.
+Require Import Coq.Arith.PeanoNat.
+
+Definition update (mem: Memoria) (v:Var) (w: Valor) :=
+  fun (x: Var) => if Nat.eqb v x 
+                  then w
+                  else mem x.
+
+(* 6.4 *)
+Lemma lookup_update1: forall (mem:Memoria) (var: Var) (val:Valor), lookup (update mem var val) var = val.
+Proof.
+  intros.
+  unfold lookup.
+  unfold update.
+  rewrite (Nat.eqb_refl var).
+  reflexivity.
+Qed.
+
+(* 6.5 *)
+Lemma lookup_update2: forall (mem: Memoria) (var var':Var) (val:Valor), var <> var' -> lookup (update mem var val) var' = lookup mem var'.
+Proof.
+  intros.
+  unfold lookup.
+  unfold update.
+  apply (Nat.eqb_neq var var') in H.
+  rewrite H.
+  reflexivity.
+Qed.
+End Ejercicio6.
 
 
 
