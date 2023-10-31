@@ -583,6 +583,40 @@ Proof.
     exact H1.
     apply (IHn1 n2 i mem4 mem2 mem3 H2 H0).
 Qed.
+
+(* 7.7 *)
+Require Import Coq.Arith.EqNat.
+Require Import Coq.Arith.PeanoNat.
+
+Variables v1 v2: Var.
+Lemma LExecute6: forall (mem mem': Memoria), v1 <> v2 -> Execute (PP v1 v2) mem mem' -> lookup mem' v2 = false /\ lookup mem' v1 = true.
+Proof.
+  intros.
+  unfold PP in H0.
+  inversion_clear H0.
+  inversion_clear H1.
+  inversion_clear H2.
+  inversion_clear H3 in H1.
+  inversion H0.
+  inversion H6 in H5.
+  rewrite <- H5 in H1.
+  inversion H1.
+  inversion H13; split.
+  - rewrite (lookup_update1 (update mem v1 true) v2).
+    reflexivity.
+  - rewrite (lookup_update2 (update mem v1 true) v2 v1).
+    rewrite (lookup_update1 mem v1 true).
+    reflexivity.
+    apply (Nat.neq_sym v1 v2); exact H.
+  - rewrite (lookup_update1 (update mem v1 true) v2).
+    inversion H15.
+    rewrite (lookup_update1 mem v1 true).
+    reflexivity.
+  - rewrite (lookup_update2 (update mem v1 true) v2 v1).
+    rewrite (lookup_update1 mem v1 true).
+    reflexivity.
+    apply (Nat.neq_sym v1 v2); exact H.
+Qed.
 End Ejercicio7.
 
 
