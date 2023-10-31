@@ -336,7 +336,13 @@ Inductive BEval : BoolExpr -> Memoria -> Valor -> Prop :=
 
 (* 5.3 *)
 
-(* TODO: 5.3.a *)
+(* 5.3.a *)
+Lemma Lmem: forall (mem:Memoria), ~ BEval (BEBool true) mem false.
+Proof.
+  intro.
+  intro.
+  inversion H.
+Qed.
 
 Lemma LEand1: forall (mem:Memoria) (e1 e2: BoolExpr) (w: Valor),
                  BEval e1 mem true -> BEval e2 mem w -> BEval (BEAnd e1 e2) mem w.
@@ -493,6 +499,123 @@ Proof.
 Qed.
 End Ejercicio6.
 
+Section Ejercicio7.
+Infix "::" := consLI (at level 60, right associativity).
+(* 7.1 *)
+Inductive Execute: Instr -> Memoria -> Memoria -> Prop :=
+  | xSkip: forall (mem:Memoria), Execute Skip mem mem
+  | xAss: forall (mem:Memoria) (e:BoolExpr) (v:Var) (w:Valor),
+             BEval e mem w -> Execute (Assign v e) mem (update mem v w)
+  | xIfThen: forall (mem mem1:Memoria) (cond: BoolExpr) (p1 p2: Instr),
+               BEval cond mem true -> Execute p1 mem mem1 -> Execute (IfThenElse cond p1 p2) mem mem1
+  | xIfElse: forall (mem mem2:Memoria) (cond: BoolExpr) (p1 p2: Instr),
+               BEval cond mem false -> Execute p2 mem mem2 -> Execute (IfThenElse cond p1 p2) mem mem2
+  | xWhileTrue: forall (mem mem1 mem2: Memoria) (cond: BoolExpr) (p: Instr),
+                  BEval cond mem true -> Execute p mem mem1 -> Execute (WhileDo cond p) mem1 mem2 -> Execute (WhileDo cond p) mem mem2
+  | xWhileFalse: forall (mem: Memoria) (cond: BoolExpr) (p: Instr),
+                  BEval cond mem false -> Execute (WhileDo cond p) mem mem
+  | xRepeatO: forall (mem: Memoria) (p: Instr), Execute (Repeat 0 p) mem mem
+  | xRepeatS: forall (mem1 mem2 mem3: Memoria) (p:Instr) (n: nat), 
+                  Execute p mem1 mem2 -> Execute (Repeat n p) mem2 mem3 -> Execute (Repeat (S n) p) mem1 mem3
+  | xBeginEnd: forall (mem mem1: Memoria) (prog: LInstr), ExecuteL prog mem mem1 -> Execute (BeginEnd prog) mem mem1
+  with
+    ExecuteL: LInstr -> Memoria -> Memoria -> Prop :=
+      | xEmptyBlock: forall (mem: Memoria), ExecuteL nillLI mem mem
+      | xNext: forall (mem mem1 mem2: Memoria) (instr: Instr) (li: LInstr),
+                  Execute instr mem mem1 -> ExecuteL li mem1 mem2 -> ExecuteL (instr::li) mem mem2.
+
+(* 7.2 *)
+Lemma LExecute1: forall (c: BoolExpr) (p1 p2: Instr) (mem mem': Memoria), Execute (IfThenElse (BENeg c) p1 p2) mem mem' -> Execute (IfThenElse c p2 p1) mem mem'.
+Proof.
+  intros.
+  inversion_clear H; inversion_clear H0; [apply xIfElse | apply xIfThen]; assumption.
+Qed.
+
+(* 7.3 *)
+Lemma LExecute2: forall (p: Instr) (mem mem': Memoria), Execute (WhileDo (BEBool false) p) mem mem' -> mem = mem'.
+Proof.
+  intros.
+  inversion H.
+  inversion H2.
+  reflexivity.
+Qed.
+
+(* 7.4 *)
+Lemma LExecute3: forall (c: BoolExpr) (p: Instr) (mem mem': Memoria),
+                  Execute (BeginEnd ((IfThenElse c p Skip)::(WhileDo c p)::nillLI)) mem mem' -> Execute (WhileDo c p) mem mem'.
+Proof.
+  intros.
+  inversion H.
+  inversion H1.
+  inversion H9.
+  inversion H6.
+  - apply (xWhileTrue mem mem3 mem').
+    -- exact H21.
+    -- exact H22.
+    -- inversion H15.
+       rewrite H25 in H12.
+       exact H12.
+  - inversion H22.
+    inversion H15.
+    rewrite H27 in H12.
+    exact H12.
+Qed.
+
+(* 7.5 *)
+Lemma LExecute4: forall (n:nat) (i:Instr) (mem1 mem2:Memoria),
+                    Execute (BeginEnd (i::(Repeat n i)::nillLI)) mem1 mem2 -> Execute (Repeat (S n) i) mem1 mem2.
+Proof.
+  intros.
+  inversion H.
+  inversion H1.
+  inversion H9.
+  inversion H15.
+  apply (xRepeatS mem1 mem4 mem2).
+  exact H6.
+  rewrite H18 in H12.
+  exact H12.
+Qed.
+
+(* 7.6 *)
+Require Import Arith.
+
+Lemma LExecute5: forall (n1 n2: nat) (i: Instr) (mem1 mem2 mem3: Memoria) ,
+                   Execute (Repeat n1 i) mem1 mem2 -> Execute (Repeat n2 i) mem2 mem3 -> Execute (Repeat (n1+n2) i) mem1 mem3.
+Proof.
+  induction n1; induction n2; intros; simpl.
+  - inversion H in H0.
+    exact H0.
+  - inversion H in H0.
+    exact H0.
+  - inversion H0 in H.
+    rewrite (Nat.add_0_r n1).
+    exact H.
+  - rewrite <- (plus_n_Sm n1 n2).
+    inversion H in H0.
+    inversion H0 in H.
+Qed.
+
+Lemma LExecute5: forall (n1 n2: nat) (i: Instr) (mem1 mem2 mem3: Memoria) ,
+                   Execute (Repeat n1 i) mem1 mem2 -> Execute (Repeat n2 i) mem2 mem3 -> Execute (Repeat (n1+n2) i) mem1 mem3.
+Proof.
+  intros.
+  inversion H; inversion H0.
+  - simpl.
+    constructor.
+  - simpl.
+    apply (xRepeatS mem2 mem4 mem3).
+    exact H7.
+    exact H10.
+  - simpl.
+    apply (xRepeatS mem1 mem4 mem3).
+    exact H3.
+    rewrite H10 in H6.
+    rewrite (Nat.add_0_r n).
+    exact H6.
+  - simpl.
+    rewrite <- (plus_n_Sm n n0).
+Qed.
+End Ejercicio7.
 
 
 
