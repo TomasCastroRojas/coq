@@ -552,12 +552,10 @@ Proof.
   - apply (xWhileTrue mem mem3 mem').
     -- exact H21.
     -- exact H22.
-    -- inversion H15.
-       rewrite H25 in H12.
+    -- inversion H15 in H12.
        exact H12.
   - inversion H22.
-    inversion H15.
-    rewrite H27 in H12.
+    inversion H15 in H12.
     exact H12.
 Qed.
 
@@ -569,51 +567,21 @@ Proof.
   inversion H.
   inversion H1.
   inversion H9.
-  inversion H15.
-  apply (xRepeatS mem1 mem4 mem2).
-  exact H6.
-  rewrite H18 in H12.
-  exact H12.
+  inversion H15 in H12.
+  apply (xRepeatS mem1 mem4 mem2 i n H6 H12).
 Qed.
 
 (* 7.6 *)
-Require Import Arith.
-
 Lemma LExecute5: forall (n1 n2: nat) (i: Instr) (mem1 mem2 mem3: Memoria) ,
                    Execute (Repeat n1 i) mem1 mem2 -> Execute (Repeat n2 i) mem2 mem3 -> Execute (Repeat (n1+n2) i) mem1 mem3.
 Proof.
-  induction n1; induction n2; intros; simpl.
-  - inversion H in H0.
+  induction n1; intros; simpl.
+  - inversion_clear H in H0.
     exact H0.
-  - inversion H in H0.
-    exact H0.
-  - inversion H0 in H.
-    rewrite (Nat.add_0_r n1).
-    exact H.
-  - rewrite <- (plus_n_Sm n1 n2).
-    inversion H in H0.
-    inversion H0 in H.
-Qed.
-
-Lemma LExecute5: forall (n1 n2: nat) (i: Instr) (mem1 mem2 mem3: Memoria) ,
-                   Execute (Repeat n1 i) mem1 mem2 -> Execute (Repeat n2 i) mem2 mem3 -> Execute (Repeat (n1+n2) i) mem1 mem3.
-Proof.
-  intros.
-  inversion H; inversion H0.
-  - simpl.
-    constructor.
-  - simpl.
-    apply (xRepeatS mem2 mem4 mem3).
-    exact H7.
-    exact H10.
-  - simpl.
-    apply (xRepeatS mem1 mem4 mem3).
-    exact H3.
-    rewrite H10 in H6.
-    rewrite (Nat.add_0_r n).
-    exact H6.
-  - simpl.
-    rewrite <- (plus_n_Sm n n0).
+  - inversion_clear H.
+    apply (xRepeatS mem1 mem4 mem3 i (n1 + n2)).
+    exact H1.
+    apply (IHn1 n2 i mem4 mem2 mem3 H2 H0).
 Qed.
 End Ejercicio7.
 
