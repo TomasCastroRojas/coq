@@ -1,3 +1,6 @@
+Section Definiciones.
+
+(* Definiciones de la practica anterior *)
 Inductive list (A:Set):Set := 
   | nil : list A
   | cons : A -> list A -> list A.
@@ -29,6 +32,9 @@ Fixpoint inverse (A:Set) (t: bintree A): bintree A :=
       empty _      => empty _
     | node _ a l r => node _ a (inverse _ r) (inverse _ l)
   end.
+  
+End Definiciones.
+
 Section Ejercicio1.
 Inductive LE : nat -> nat -> Prop :=
  | Le_O : forall n : nat, LE 0 n
