@@ -52,7 +52,7 @@ Qed.
 
 (* 2.2 *)
 Functional Scheme inverse_ind := Induction for inverse Sort Prop.
-Hint Constructors mirror : core.
+#[local] Hint Constructors mirror : core.
 Lemma MirrorCInverse: forall (A:Set) (t:bintree A),
 {t':bintree A|(mirror A t t')}.
 Proof.
@@ -139,7 +139,7 @@ Proof.
 Qed.
 
 Functional Scheme beval1_ind := Induction for beval1 Sort Prop.
-Hint Constructors BEval : core.
+#[local] Hint Constructors BEval : core.
 Lemma beval_correct_value2: forall e:BoolExpr, {b:Value |(BEval e b)}.
 Proof.
   intro.
@@ -167,6 +167,127 @@ Extraction "beval1_correct1" beval_correct_value.
 Extraction "beval1_correct2" beval_correct_value2.
 Extraction "beval2_correct1" beval_correct_lazy.
 Extraction "beval2_correct2" beval_correct_lazy2.
+
+Section list_perm.
+Variable A:Set.
+Inductive list : Set :=
+  | nil : list
+  | cons : A -> list -> list.
+Fixpoint append (l1 l2 : list) {struct l1} : list :=
+  match l1 with
+    | nil => l2
+    | cons a l => cons a (append l l2)
+  end.
+Inductive perm : list -> list ->Prop:=
+  |perm_refl: forall l, perm l l
+  |perm_cons: forall a l0 l1, perm l0 l1-> perm (cons a l0)(cons a l1)
+  |perm_app: forall a l, perm (cons a l) (append l (cons a nil))
+  |perm_trans: forall l1 l2 l3, perm l1 l2 -> perm l2 l3 -> perm l1 l3.
+
+#[local]Hint Constructors perm : core. 
+
+(* 4.1 *)
+Fixpoint reverse (l1:list) :list :=
+  match l1 with
+      nil         => nil
+    | cons a rest => (append (reverse rest) (cons a nil))
+  end.
+
+(* 4.2 *)
+Lemma Ej6_4: forall l: list, {l2: list | perm l l2}.
+Proof.
+  intro l.
+  exists (reverse l).
+  induction l; simpl.
+  - constructor.
+  - apply (perm_trans (cons a l) (cons a (reverse l)) (append (reverse l) (cons a nil))).
+    -- apply (perm_cons a l (reverse l)).
+       exact IHl.
+    -- apply (perm_app a (reverse l)).
+Qed.
+
+End list_perm.
+
+(* 5.1 *)
+Inductive Le: nat -> nat -> Prop :=
+  | Le0: forall n:nat, Le 0 n
+  | LeS: forall n m:nat, Le n m -> Le (S n) (S m).
+
+Inductive Gt: nat -> nat -> Prop :=
+  | Gt0: forall n:nat, Gt (S n) 0
+  | GtS: forall n m:nat, Gt n m -> Gt (S n) (S m).
+
+(* 5.2 *)
+
+Fixpoint leBool (n m: nat):bool :=
+  match n, m with
+      0 , _         => true
+    | _ , 0         => false
+    | (S a) , (S b) => leBool a b
+  end.
+
+Functional Scheme leBool_rec := Induction for leBool Sort Set.
+Lemma Le_Gt_dec: forall n m:nat, {(Le n m)}+{(Gt n m)}.
+Proof.
+  intros.
+  functional induction (leBool n m).
+  - left.
+    constructor.
+  - right.
+    constructor.
+  - elim IHb; intro H; [ left | right]; constructor; exact H.
+Qed.
+
+(* 5.3 *)
+Require Import Lia.
+
+Lemma le_gt_dec: forall n m:nat, {(le n m)}+{(gt n m)}.
+Proof.
+  intros.
+  functional induction (leBool n m).
+  - left; lia.
+  - right; lia.
+  - elim IHb; intro H; [left | right ]; lia.
+Qed.
+
+(* 6 *)
+Require Import DecBool.
+Require Import Compare_dec.
+Require Import Plus.
+Require Import Mult.
+Definition spec_res_nat_div_mod (a b:nat) (qr:nat*nat) :=
+ match qr with
+ (q,r) => (a = b*q + r) /\ r < b
+ end.
+Definition nat_div_mod :
+ forall a b:nat, not(b=0) -> {qr:nat*nat | spec_res_nat_div_mod a b qr}.  
+Proof.
+  intros a b b_neq_0.
+  unfold spec_res_nat_div_mod.
+  induction a.
+  - exists (0, 0).
+    lia.
+  - elim IHa.
+    intros x H.
+    destruct x as [q' r'].
+    elim (lt_dec r' (b - 1)); intro H'.
+    -- exists (q', S r').
+       lia.
+    -- exists (S q',  0).
+       lia.
+Qed.
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
