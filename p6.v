@@ -277,11 +277,27 @@ Proof.
        lia.
 Qed.
 
+(* 7 *)
+Inductive bintree_sub (A:Set) (t:bintree A) : bintree A -> Prop :=
+ | tree_sub1 : forall (t':bintree A) (x:A), bintree_sub A t (node A x t t')
+ | tree_sub2 : forall (t':bintree A) (x:A), bintree_sub A t (node A x t' t).
 
 
-
-
-
+Theorem well_founded_tree_sub : forall A:Set, well_founded (bintree_sub A).
+Proof.
+  intro A.
+  unfold well_founded.
+  intro t.
+  induction t.
+  - constructor.
+    intros t' H.
+    inversion H.
+  - constructor.
+    intros t' H.
+    inversion H.
+    exact IHt1.
+    exact IHt2.
+Qed.
 
 
 
