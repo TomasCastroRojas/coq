@@ -168,6 +168,10 @@ Extraction "beval1_correct2" beval_correct_value2.
 Extraction "beval2_correct1" beval_correct_lazy.
 Extraction "beval2_correct2" beval_correct_lazy2.
 
+(* 3.4 *)
+Extract Inductive bool => "Prelude:Bool" ["true" "false"].
+Extraction "beval1_correct1" beval_correct_value.
+    
 Section list_perm.
 Variable A:Set.
 Inductive list : Set :=
@@ -299,7 +303,70 @@ Proof.
     exact IHt2.
 Qed.
 
+(* 8.1 *)
+Fixpoint size (e: BoolExpr): nat :=
+  match e with
+    | bbool b => 1
+    | band e1 e2 => (size e1) + (size e2)
+    | bnot e' => (size e') + 1
+  end.
 
+Definition elt (e1 e2 : BoolExpr) := size e1 < size e2.
+Require Import Wf_nat.
+Require Import Inverse_Image.
+
+Lemma well_founded_elt: well_founded elt.
+Proof.
+  apply well_founded_ltof.
+Qed.
+
+(* 9 *)
+Section Ejercicio9.
+Inductive listGen (A:Set):Set := 
+  | nilGen : listGen A
+  | consGen : A -> listGen A -> listGen A.
+
+Fixpoint appendGen (A:Set) (l1 l2 : listGen A) {struct l1} : listGen A:=
+  match l1 with
+    | nilGen _ => l2
+    | consGen _ a l => consGen _ a (appendGen _ l l2)
+  end.
+Inductive sorted (A:Set) (R: A -> A -> Prop): listGen A -> Prop :=
+  | sorted_nil : sorted A R (nilGen A)
+  | sorted_singleton : forall (a:A), sorted A R (consGen A a (nilGen A))
+  | sorted_cons : forall (a b: A) l,
+                  R a b -> sorted A R (consGen A b l) ->
+                  sorted A R (consGen A a (consGen A b l)).
+                  
+Inductive permGen (A:Set): listGen A -> listGen A -> Prop:=
+  |permGen_refl: forall l, permGen A l l
+  |permGen_cons: forall a l0 l1, permGen A l0 l1 -> permGen _ (consGen _ a l0) (consGen _ a l1)
+  |p_ccons: forall a b l, (permGen A (consGen _ a (consGen _ b l)) (consGen _ b (consGen _ a l)))
+  |permGen_trans: forall l1 l2 l3, permGen A l1 l2 -> permGen _ l2 l3 -> permGen _ l1 l3.
+
+Fixpoint insert_sortedGen (A:Set) (elem:A) (l:listGen A) (le: A -> A -> bool): listGen A :=
+  match l with
+      nilGen _ => consGen _ elem (nilGen _)
+    | consGen _ h rest => if (le elem h) then (consGen _ elem (consGen _ h rest))
+                                      else (consGen _ h (insert_sortedGen _ elem rest le))
+  end.
+
+Fixpoint insert_sortGen (A:Set) (l: listGen A) (le: A -> A -> bool): listGen A :=
+  match l with
+      nilGen _ => nilGen _
+    | consGen _ h rest => (insert_sortedGen _ h (insert_sortGen _ rest le) le)
+  end.
+
+Lemma SORT: forall l:(listGen nat), {l':(listGen nat) | (sorted nat le l') /\ (permGen nat l l')}.
+Proof.
+  induction l.
+  - exists (nilGen nat).
+    split; constructor.
+  - exists (insert_sortGen nat (consGen nat a l) leBool).
+    split;simpl.
+    
+Qed.
+End Ejercicio9.
 
 
 
