@@ -671,9 +671,65 @@ Qed.
 End Ejercicio14.
 
 Section Ejercicio15.
+Lemma iso_tree_id: forall (A:Set) (t: bintree A), isomorfo _ t t.
+Proof.
+induction t; simpl; constructor; [exact IHt1 | exact IHt2].
+Qed.
+
+Lemma iso_tree_sym: forall (A:Set) (t1 t2: bintree A), isomorfo _ t1 t2 -> isomorfo _ t2 t1.
+Proof.
+  intros.
+  induction H.
+  - constructor.
+  - constructor; [exact IHisomorfo1 | exact IHisomorfo2].
+Qed.
 End Ejercicio15.
 
 Section Ejercicio16.
+
+Inductive Tree (A:Set): Set :=
+  | leaf_t: A -> Tree A
+  | node_t: Tree A -> Tree A -> Tree A.
+
+(* 16.1 *)
+Fixpoint mapTree (A B:Set) (t: Tree A) (f: A -> B): Tree B :=
+  match t with
+    | leaf_t _ a => leaf_t B (f a)
+    | node_t _ l r => node_t B (mapTree A B l f) (mapTree A B r f)
+  end.
+
+(* 16.2 *)
+Fixpoint sizeTree (A:Set) (t: Tree A): nat :=
+  match t with
+    | leaf_t _ _ => 1
+    | node_t _ l r => (sizeTree _ l) + (sizeTree _ r)
+  end.
+
+(* 16.3 *)
+Lemma inv_size_map: forall (A B:Set) (t: Tree A) (f: A -> B), sizeTree A t = sizeTree B (mapTree A B t f).
+Proof.
+  intros.
+  induction t; simpl.
+  - reflexivity.
+  - rewrite <- IHt1; rewrite <- IHt2.
+    reflexivity.
+Qed.
+
+Fixpoint tree_to_list (a: Set) (t: Tree a) {struct t}: list a :=
+  match t with
+    | leaf_t _ e => cons _ e (nil _)
+    | node_t _ l r => append _ (tree_to_list _ l) (tree_to_list _ r)
+  end.
+
+Lemma tree_to_list_size: forall (a: Set) (t: Tree a), sizeTree _ t = length _ (tree_to_list _ t).
+Proof.
+induction t; simpl.
+- reflexivity.
+- rewrite IHt1. rewrite IHt2.
+  rewrite (L4 _ (tree_to_list a t1) (tree_to_list a t2)).
+  reflexivity.
+Qed.
+
 End Ejercicio16.
 
 Section Ejercicio17.
@@ -760,6 +816,68 @@ Proof.
 Qed.
 
 End Ejercicio17.
+
+Section Ejercicio18.
+
+Inductive ABin (A B: Set): Set :=
+  | leaf_abt: B -> ABin A B
+  | add_abtree: A -> ABin A B -> ABin A B -> ABin A B.
+
+Fixpoint count_leafs (A B:Set) (t: ABin A B): nat :=
+  match t with
+    | leaf_abt _ _ _ => 1
+    | add_abtree _ _ _ l r => (plus (count_leafs _ _ l) (count_leafs _ _ r))
+  end.
+
+Fixpoint count_interns (A B:Set) (t:ABin A B): nat :=
+  match t with
+    | leaf_abt _ _ _ => 0
+    | add_abtree _ _ _ l r => S (plus (count_interns _ _ l) (count_interns _ _ r))
+  end.
+
+Lemma count_nodes_abt: forall (A B:Set) (t: ABin A B), count_leafs A B t = S (count_interns A B t).
+Proof.
+  intros.
+  induction t; simpl; auto.
+  rewrite IHt1.
+  rewrite IHt2.
+  simpl.
+  auto.
+Qed.
+
+End Ejercicio18.
+
+Section Ejercicio19.
+Variable A : Set.
+
+Inductive Tree_ : Set :=
+  | nullT : Tree_
+  | consT : A -> Tree_ -> Tree_ -> Tree_.
+
+Inductive isSubTree: Tree_ -> Tree_ -> Prop :=
+  | subtree_id: forall (t: Tree_), isSubTree t t
+  | subtree_left: forall (t t1 t2: Tree_) (a: A), isSubTree t t1 -> isSubTree t (consT a t1 t2)
+  | subtree_right: forall (t t1 t2: Tree_) (a: A), isSubTree t t2 -> isSubTree t (consT a t1 t2).
+
+Lemma subtree_refl: forall (t: Tree_), isSubTree t t.
+Proof.
+  constructor.
+Qed.
+
+Lemma subtree_trans: forall (t1 t2 t3: Tree_), isSubTree t1 t2 -> isSubTree t2 t3 -> isSubTree t1 t3.
+Proof.
+  intros.
+  induction H0.
+  - exact H.
+  - apply subtree_left.
+    apply IHisSubTree.
+    exact H.
+  - apply subtree_right.
+    apply IHisSubTree.
+    exact H.
+Qed.
+
+End Ejercicio19.
 
 Section Ejercicio20.
 (* 20.1 *)
