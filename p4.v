@@ -283,7 +283,29 @@ Fixpoint insert_sortGen (A:Set) (l: list A) (le: A -> A -> bool): list A :=
 End Ejercicio6.
                                                 
 Section Ejercicio7.
-(* TODO: Como trabajar Exp *)
+                                        
+Inductive Exp (a: Set): Set :=
+  | const: a -> Exp a
+  | sum_exp: Exp a -> Exp a -> Exp a
+  | prod_exp: Exp a -> Exp a -> Exp a
+  | op_exp: Exp a -> Exp a.
+
+Fixpoint eval_nat (e: Exp nat): nat :=
+  match e with
+    | const _ a => a
+    | sum_exp _ a b => (eval_nat a) + (eval_nat b)
+    | prod_exp _ a b => (eval_nat a) * (eval_nat b)
+    | op_exp _ a => eval_nat a
+  end.
+
+Fixpoint eval_bool (e: Exp bool): bool :=
+  match e with
+    | const _ a => a
+    | sum_exp _ a b => bool_or (eval_bool a) (eval_bool b)
+    | prod_exp _ a b => bool_and (eval_bool a) (eval_bool b)
+    | op_exp _ a => bool_not (eval_bool a)
+  end.
+                                        
 End Ejercicio7.
 
 Section Ejercicio8.
