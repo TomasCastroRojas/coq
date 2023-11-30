@@ -122,6 +122,10 @@ Section State.
     
 
   Definition trusted_os (ctxt : context) (s : State) : Prop :=
-    ctxt_oss ctxt (active_os s) = true. 
+    ctxt_oss ctxt (active_os s) = true.
+  
+  Definition os_accessible (ctxt: context) (va: vadd) : Prop :=
+    ctxt_vadd_accessible ctxt va = true.
+
 
 End State.

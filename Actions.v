@@ -2,7 +2,6 @@
  * Este archivo especifica las acciones Como transformadores de estado.
  * LAS DEFINICIONES DADAS PUEDEN SER USADAS DIRECTAMENTE O CAMBIADAS.
  ******************************************************************)
-Print LoadPath.
 Add LoadPath "." as Current.
 Load "State.v".
 
@@ -11,12 +10,23 @@ Parameter ctxt : context.
 Section Actions.
   
   Inductive Action :=
-  ...
+    | Read: vadd -> Action
+    | Write: vadd -> value -> Action
+    | Chmod: Action.
 
   (* Action preconditions *)
   Definition Pre (s : State) (a : Action) : Prop :=
     match a with
-    ...
+      | Read va =>    (os_accessible ctxt va)
+                   /\ (aos_activity s) = running
+                   /\ (exists (ma:madd), (va_mapped_to_ma s va ma))
+      | Write va v =>    (os_accessible ctxt va)
+                      /\ (aos_activity s) = running
+                      /\ (exists (ma:madd), (va_mapped_to_ma s va ma) /\ (match (memory s) ma with
+                                                                            | None => False
+                                                                            | Some p => is_RW (page_content p)
+                                                                          end))
+      | Chmod => True (* WIP*)              
     end.
 
   (* Action postconditions *)
