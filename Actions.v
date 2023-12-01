@@ -36,10 +36,33 @@ Section Actions.
               
     end.
 
+  (* Auxiliary predicadates *)
+  Definition differ_at_most_memory (s s': State) (ma: madd) : Prop :=
+       active_os s = active_os s'
+    /\ aos_exec_mode s = aos_exec_mode s'
+    /\ aos_activity s = aos_activity s'
+    /\ oss s = oss s'
+    /\ hypervisor s = hypervisor s'
+    /\ forall (m: madd), m <> ma -> memory(s) m = memory(s') m.
+
+  Definition differ_chmod (s s': State) (mode: exec_mode) (oa: os_activity) : Prop :=
+       active_os s = active_os s'
+    /\ mode = aos_exec_mode s'
+    /\ oa = aos_activity s'
+    /\ oss s = oss s'
+    /\ hypervisor s = hypervisor s'
+    /\ memory s = memory s'.
+  
   (* Action postconditions *)
   Definition Post (s : State) (a : Action) (s' : State) : Prop :=
     match a with
-    ...    
+      | Read va => s = s'
+      | Write va v => (exists ma:madd, (va_mapped_to_ma s va ma) 
+                                    -> let p := mk_page (RW (Some v)) (Os (active_os s)) in
+                                       (memory s') = update (memory s) ma p 
+                                    -> differ_at_most_memory s s' ma)
+      | Chmod =>    (trusted_os ctxt s -> differ_chmod s s' svc running)
+                 \/ ((~ trusted_os ctxt s) -> differ_chmod s s' usr running)
     end.
 
   Definition valid_state_iii (s : State) : Prop :=  
