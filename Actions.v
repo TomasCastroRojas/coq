@@ -18,15 +18,22 @@ Section Actions.
   Definition Pre (s : State) (a : Action) : Prop :=
     match a with
       | Read va =>    (os_accessible ctxt va)
-                   /\ (aos_activity s) = running
-                   /\ (exists (ma:madd), (va_mapped_to_ma s va ma))
+                   -> (aos_activity s) = running
+                   -> (exists (ma:madd), (va_mapped_to_ma s va ma) -> (match (memory s) ma with
+                                                                        | None => False
+                                                                        | Some p => is_RW (page_content p)
+                                                                       end))
       | Write va v =>    (os_accessible ctxt va)
-                      /\ (aos_activity s) = running
-                      /\ (exists (ma:madd), (va_mapped_to_ma s va ma) /\ (match (memory s) ma with
-                                                                            | None => False
-                                                                            | Some p => is_RW (page_content p)
-                                                                          end))
-      | Chmod => True (* WIP*)              
+                   -> (aos_activity s) = running
+                   -> (exists (ma:madd), (va_mapped_to_ma s va ma) -> (match (memory s) ma with
+                                                                        | None => False
+                                                                        | Some p => is_RW (page_content p)
+                                                                       end))
+      | Chmod => (aos_activity s) = waiting ->  match (oss s) (active_os s) with
+                                                  | Some os => hcall os = None
+                                                  | _ => False
+                                                end
+              
     end.
 
   (* Action postconditions *)
