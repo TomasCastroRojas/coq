@@ -18,21 +18,12 @@ Section Actions.
   Definition Pre (s : State) (a : Action) : Prop :=
     match a with
       | Read va =>    (os_accessible ctxt va)
-                   -> (aos_activity s) = running
-                   -> (exists (ma:madd), (va_mapped_to_ma s va ma) -> (match (memory s) ma with
-                                                                        | None => False
-                                                                        | Some p => is_RW (page_content p)
-                                                                       end))
-      | Write va v =>    (os_accessible ctxt va)
-                   -> (aos_activity s) = running
-                   -> (exists (ma:madd), (va_mapped_to_ma s va ma) -> (match (memory s) ma with
-                                                                        | None => False
-                                                                        | Some p => is_RW (page_content p)
-                                                                       end))
-      | Chmod => (aos_activity s) = waiting ->  match (oss s) (active_os s) with
-                                                  | Some os => hcall os = None
-                                                  | _ => False
-                                                end
+                   /\ (aos_activity s) = running
+                   /\ (exists (ma:madd) (p: page), (va_mapped_to_ma s va ma) /\ (memory s) ma = Some p /\ is_RW (page_content p))
+      | Write va v =>   (os_accessible ctxt va)
+                     /\ (aos_activity s) = running
+                     /\ (exists (ma:madd) (p: page), (va_mapped_to_ma s va ma) /\ (memory s) ma = Some p /\ is_RW (page_content p))
+      | Chmod => (aos_activity s) = waiting -> (exists o: os, (oss s) (active_os s) = Some o /\ (hcall o) = None)
               
     end.
 
@@ -65,17 +56,33 @@ Section Actions.
                  \/ ((~ trusted_os ctxt s) -> differ_chmod s s' usr running)
     end.
 
+  (*if the hypervisor or a trusted OS is running the processor must be in supervisor mode*)
   Definition valid_state_iii (s : State) : Prop :=  
-  ...
+    (aos_activity s = waiting \/ trusted_os ctxt s) -> aos_exec_mode s = svc.
   
   Definition inyective {A B : Set} (pmap : A ⇸ B) :=
     forall x y, pmap x = pmap y -> x = y.
 
+  (* the hypervisor maps an OS physical address to a machine address owned by
+     that same OS. This mapping is also injective *)
   Definition valid_state_v (s : State) : Prop :=
-  ...
+    forall (pa: padd),
+    (exists (pmap:(padd ⇸ madd)) (ma: madd) (p: page),
+       (hypervisor s) (active_os s) = Some pmap
+    /\ pmap pa = Some ma
+    /\ (memory s) ma = Some p
+    /\ (match (page_owned_by p) with
+          | Os id => id = active_os s
+          | _ => False
+        end)
+    /\ inyective pmap).
 
+  (* all page tables of an OS o map accessible virtual addresses to pages owned by o
+     and not accessible ones to pages owned by the hypervisor *)
   Definition valid_state_vi (s : State) : Prop :=
-  ...  
+    forall (o: os_ident),
+      
+
   
   Definition valid_state (s : State) : Prop :=
     valid_state_iii s /\ valid_state_v s /\ valid_state_vi s.
