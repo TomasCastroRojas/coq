@@ -96,29 +96,17 @@ Section State.
 
   
   Definition va_mapped_to_ma (s : State) (va : vadd) (ma : madd) :=
-    match (oss s) (active_os s) with
-      | None => False
-      | Some curr_os =>
-        match (hypervisor s) (active_os s) with
-          | None => False
-          | Some hypv =>
-            match hypv (curr_page curr_os) with
-              | None => False
-              | Some curr_madd =>
-                match (memory s) curr_madd with
-                  | None => False
-                  | Some p => 
-                    match (page_content p) with
-                      | PT mapping => match mapping va with
-                                        | None => False
-                                        | Some ma' => ma' = ma
-                                      end
-                      | _ => False
-                    end
-                end
-            end
-        end
-   end.
+    exists (curr_os : os)
+           (ph_map : padd ⇸ madd)
+           (curr_pt_addr : madd)
+           (pt : page)
+           (vt_map : vadd ⇸ madd),
+         oss s (active_os s) = Some curr_os
+      /\ (hypervisor s) (active_os s) = Some ph_map
+      /\ ph_map (curr_page curr_os) = Some curr_pt_addr
+      /\ (memory s) curr_pt_addr = Some pt
+      /\ (page_content pt) = PT vt_map
+      /\ vt_map va = Some ma.
     
 
   Definition trusted_os (ctxt : context) (s : State) : Prop :=
