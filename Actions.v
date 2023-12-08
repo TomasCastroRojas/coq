@@ -80,15 +80,23 @@ Section Actions.
   (* all page tables of an OS o map accessible virtual addresses to pages owned by o
      and not accessible ones to pages owned by the hypervisor *)
   Definition valid_state_vi (s : State) : Prop :=
-    forall (o: os_ident),
-      
+    forall (p: page),
+      match (page_content p), (page_owned_by p) with
+        | PT ptmap, Os o =>
+          forall (va: vadd) (ma: madd) (p': page), (ptmap va = Some ma /\
+                                                    (memory s) ma = Some p') ->
+                                                    ( (os_accessible ctxt va -> page_owned_by p = Os o)
+                                                   /\ (~os_accessible ctxt va -> page_owned_by p = Hyp))
+        | _, _ => False
+      end.
 
   
   Definition valid_state (s : State) : Prop :=
     valid_state_iii s /\ valid_state_v s /\ valid_state_vi s.
   
   Inductive one_step : State -> Action -> State -> Prop :=
-  ...
+    | onestep: forall (s: State) (a: Action) (s': State),
+                 valid_state s -> Pre s a -> Post s a s' -> one_step s a s'. 
  
   Notation "a ⇒ s ↪ s'" := (one_step s a s') (at level 50).
 
