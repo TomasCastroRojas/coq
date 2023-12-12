@@ -23,7 +23,7 @@ Section Actions.
       | Write va v =>   (os_accessible ctxt va)
                      /\ (aos_activity s) = running
                      /\ (exists (ma:madd) (p: page), (va_mapped_to_ma s va ma) /\ (memory s) ma = Some p /\ is_RW (page_content p))
-      | Chmod => (aos_activity s) = waiting -> (exists o: os, (oss s) (active_os s) = Some o /\ (hcall o) = None)
+      | Chmod => (aos_activity s) = waiting /\ (exists o: os, (oss s) (active_os s) = Some o /\ (hcall o) = None)
               
     end.
 
@@ -52,13 +52,13 @@ Section Actions.
                                     -> let p := mk_page (RW (Some v)) (Os (active_os s)) in
                                        (memory s') = update (memory s) ma p 
                                     -> differ_at_most_memory s s' ma)
-      | Chmod =>    (trusted_os ctxt s -> differ_chmod s s' svc running)
-                 \/ ((~ trusted_os ctxt s) -> differ_chmod s s' usr running)
+      | Chmod =>    (trusted_os ctxt s /\ differ_chmod s s' svc running)
+                 \/ ((~ trusted_os ctxt s) /\ differ_chmod s s' usr running)
     end.
 
   (*if the hypervisor or a trusted OS is running the processor must be in supervisor mode*)
   Definition valid_state_iii (s : State) : Prop :=  
-    (aos_activity s = waiting \/ trusted_os ctxt s) -> aos_exec_mode s = svc.
+    (aos_activity s = waiting \/ (aos_activity s = running -> trusted_os ctxt s)) -> aos_exec_mode s = svc.
   
   Definition inyective {A B : Set} (pmap : A ⇸ B) :=
     forall x y, pmap x = pmap y -> x = y.
@@ -104,7 +104,72 @@ Section Actions.
   Theorem one_step_preserves_prop_iii : forall (s s' : State) (a : Action),
       a ⇒ s ↪ s' -> valid_state_iii s'.
   Proof.
-  ...
+  Proof.
+    intros s s' a OneStep.
+    destruct OneStep.
+    induction a; unfold valid_state in H; unfold Pre in H0;
+    unfold Post in H1; unfold valid_state_iii; intro PropH.
+    - elim H.
+      intros Prop_iii H'.
+      unfold valid_state_iii in Prop_iii.
+      rewrite H1 in Prop_iii.
+      apply Prop_iii.
+      exact PropH.
+    - elim H; intros.
+      unfold valid_state_iii in H2; clear H H3.
+      
+      elim H0.
+      intros OsAccess H0'; clear H0.
+      elim H0'.
+      intros OsRunning H0''; clear H0'.
+      
+      elim H1; clear H1.
+      intro ma.
+      intro H1'.
+      elim H1'; clear H1'.
+      intros va_map_ma H1''.
+      elim H1''; clear H1''.
+      
+      intros UpdateMemory DifferMemory.
+      unfold differ_at_most_memory in DifferMemory.
+      inversion_clear DifferMemory.
+      inversion_clear H0.
+      inversion_clear H3.
+      clear H4.
+      
+      rewrite <- H1.
+      apply H2.
+      elim PropH; intros.
+      -- left.
+         rewrite H0.
+         exact H3.
+      -- right.
+         intro OsRunning'.
+         unfold trusted_os; unfold trusted_os in H3.
+         rewrite H.
+         apply H3.
+         rewrite <- H0.
+         exact OsRunning'.
+  - elim H0; intros curr_act H2; clear H2.
+    elim H1; intro; elim H2; intros; clear H2;
+    
+    inversion_clear H4;
+    inversion_clear H5;
+    inversion_clear H6;
+    clear H7.
+    
+    -- rewrite H4; reflexivity.
+    -- elim PropH; intro.
+       --- absurd (running = aos_activity s').
+           rewrite H6.
+           discriminate.
+           exact H5.
+       --- unfold trusted_os in H3.
+           rewrite H2 in H3.
+           absurd (trusted_os ctxt s').
+           exact H3.
+           apply H6.
+           rewrite <- H5; reflexivity.
   Qed. 
 
 
