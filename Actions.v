@@ -174,7 +174,10 @@ Section Actions.
 
 
   Theorem read_isolation : forall (s s' : State) (va : vadd),
-  ...  
+    (Read va) ⇒ s ↪ s' ->
+      exists (ma: madd), va_mapped_to_ma s va ma /\
+        exists (p: page), Some p = (memory s) ma /\
+          page_owned_by p = Os (active_os s).  
   Proof.
   ...
   Qed.
