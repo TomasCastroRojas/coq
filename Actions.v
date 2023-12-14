@@ -49,9 +49,9 @@ Section Actions.
     match a with
       | Read va => s = s'
       | Write va v => (exists ma:madd, (va_mapped_to_ma s va ma) 
-                                    -> let p := mk_page (RW (Some v)) (Os (active_os s)) in
+                                    /\ let p := mk_page (RW (Some v)) (Os (active_os s)) in
                                        (memory s') = update (memory s) ma p 
-                                    -> differ_at_most_memory s s' ma)
+                                    /\ differ_at_most_memory s s' ma)
       | Chmod =>    (trusted_os ctxt s /\ differ_chmod s s' svc running)
                  \/ ((~ trusted_os ctxt s) /\ differ_chmod s s' usr running)
     end.
@@ -66,29 +66,23 @@ Section Actions.
   (* the hypervisor maps an OS physical address to a machine address owned by
      that same OS. This mapping is also injective *)
   Definition valid_state_v (s : State) : Prop :=
-    forall (pa: padd),
-    (exists (pmap:(padd ⇸ madd)) (ma: madd) (p: page),
+    forall (ma: madd) (p: page) (pa: padd)(pmap:(padd ⇸ madd)),
        (hypervisor s) (active_os s) = Some pmap
     /\ pmap pa = Some ma
     /\ (memory s) ma = Some p
-    /\ (match (page_owned_by p) with
-          | Os id => id = active_os s
-          | _ => False
-        end)
-    /\ inyective pmap).
+    /\ (page_owned_by p) = Os (active_os s)
+    /\ inyective pmap.
 
   (* all page tables of an OS o map accessible virtual addresses to pages owned by o
      and not accessible ones to pages owned by the hypervisor *)
   Definition valid_state_vi (s : State) : Prop :=
-    forall (p: page),
-      match (page_content p), (page_owned_by p) with
-        | PT ptmap, Os o =>
-          forall (va: vadd) (ma: madd) (p': page), (ptmap va = Some ma /\
-                                                    (memory s) ma = Some p') ->
-                                                    ( (os_accessible ctxt va -> page_owned_by p = Os o)
-                                                   /\ (~os_accessible ctxt va -> page_owned_by p = Hyp))
-        | _, _ => False
-      end.
+    forall (p p': page) (ptmap: vadd ⇸ madd) (os_id: os_ident) (va: vadd) (ma: madd),
+      page_content p = PT ptmap ->
+        page_owned_by p = Os os_id ->
+          ptmap va = Some ma ->
+            (memory s) ma = Some p' ->
+              ( (os_accessible ctxt va -> page_owned_by p' = Os os_id)
+              /\(~os_accessible ctxt va -> page_owned_by p' = Hyp)).
 
   
   Definition valid_state (s : State) : Prop :=
@@ -118,19 +112,13 @@ Section Actions.
     - elim H; intros.
       unfold valid_state_iii in H2; clear H H3.
       
-      elim H0.
-      intros OsAccess H0'; clear H0.
-      elim H0'.
-      intros OsRunning H0''; clear H0'.
+      elim H0; intros OsAccess H0'; clear H0.
+      elim H0'; intros OsRunning H0''; clear H0'.
       
-      elim H1; clear H1.
-      intro ma.
-      intro H1'.
-      elim H1'; clear H1'.
-      intros va_map_ma H1''.
-      elim H1''; clear H1''.
-      
-      intros UpdateMemory DifferMemory.
+      elim H1; intros ma H1'; clear H1.
+      elim H1'; intros va_map_ma H1''; clear H1'.
+      elim H1''; intros UpdateMemory DifferMemory; clear H1''.
+     
       unfold differ_at_most_memory in DifferMemory.
       inversion_clear DifferMemory.
       inversion_clear H0.
@@ -202,10 +190,8 @@ Section Actions.
     -- rewrite H5; reflexivity.
     -- unfold valid_state_v in H.
        unfold va_mapped_to_ma in H2.
-       elim H2.
-       intros curr_os H2'; clear H2.
-       elim H2'.
-       intros pmap H2; clear H2'.
+       elim H2; intros curr_os H2'; clear H2.
+       elim H2'; intros pmap H2; clear H2'.
        apply (H ma p (curr_page curr_os) pmap). 
   Qed.
 
