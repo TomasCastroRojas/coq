@@ -179,34 +179,34 @@ Section Actions.
         exists (p: page), Some p = (memory s) ma /\
           page_owned_by p = Os (active_os s).  
   Proof.
-    intros s s' va OneStep.
-    inversion_clear OneStep.
-    inversion_clear H0.
-    inversion_clear H3.
-    inversion H1; clear H1.
-    inversion_clear H.
-    inversion_clear H5.
-    
-    elim H4.
-    intros ma H4'.
-    elim H4'.
-    intros p PreH; clear H4 H4'.
-    
-    exists ma.
+  intros s s' va OneStep.
+  inversion_clear OneStep.
+  inversion_clear H0. clear H2.
+  inversion_clear H3. clear H0.
+  inversion H1; clear H1.
+  inversion_clear H.
+  inversion_clear H3.
+  
+  elim H2; intros ma H2'.
+  elim H2'; intros p PreH; clear H2 H2'.
+  inversion_clear PreH.
+  inversion_clear H3.
+  rewrite <- H0.
+  clear H0 H1 H6.
+  
+  exists ma.
+  split.
+  - assumption.
+  - exists p.
     split.
-    - elim PreH.
-      intros.
-      rewrite H3 in H4.
-      exact H4.
-    - exists p.
-      split.
-      -- elim PreH.
-         intros va_map_ma PreH'.
-         elim PreH'.
-         intros Memory RWPage; clear PreH PreH'.
-         rewrite H3 in Memory.
-         rewrite Memory; reflexivity.
-      -- (* WIP: sale por valid_state_vi creo *)
+    -- rewrite H5; reflexivity.
+    -- unfold valid_state_v in H.
+       unfold va_mapped_to_ma in H2.
+       elim H2.
+       intros curr_os H2'; clear H2.
+       elim H2'.
+       intros pmap H2; clear H2'.
+       apply (H ma p (curr_page curr_os) pmap). 
   Qed.
 
 End Actions.
